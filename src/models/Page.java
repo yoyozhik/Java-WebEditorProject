@@ -102,15 +102,19 @@ public class Page {
     public String getUploadParent() {
         String rootDir = getDesignSetItem("rootDir");
         String websiteDirRel = getDesignSetItem("websiteDirRel");
+        String uploadsResourcesRel = getDesignSetItem("uploadsResourcesRel");
         if (rootDir == null) {
             throw new NullPointerException("Null rootDir");
         }
         if (websiteDirRel == null) {
             throw new NullPointerException("Null websiteDirRel");
         }
+        if (uploadsResourcesRel == null) {
+            throw new NullPointerException("Null uploadsResourcesRel");
+        }
         String parent = rootDir + File.separator
             + websiteDirRel + File.separator
-            + "uploads" + File.separator
+            + uploadsResourcesRel + File.separator
             + getPageName();
         return(parent);
     }
@@ -184,14 +188,25 @@ public class Page {
         if (websiteURL == null) {
             websiteURL = "";
         }
-        compiledText = compiledText.replace("<WEBURL>", websiteURL);
+        String imagesResourcesRel = getDesignSetItem("imagesResourcesRel");
+        if (imagesResourcesRel == null) {
+            throw new NullPointerException("Null imagesResourcesRel");
+        }
+        String uploadsResourcesRel = getDesignSetItem("uploadsResourcesRel");
+        if (uploadsResourcesRel == null) {
+            throw new NullPointerException("Null uploadsResourcesRel");
+        }
+        compiledText = compiledText.replaceAll("(?i)<WEBURL>", websiteURL);
         //Handle page title
-        compiledText = compiledText.replace("<PAGETITLE>", pageTitle + " - " + websiteName);
+        compiledText = compiledText.replaceAll("(?i)<PAGETITLE>", pageTitle + " - " + websiteName);
         //Handle page name
-        compiledText = compiledText.replace("<PAGENAME>", pageName);
+        compiledText = compiledText.replaceAll("(?i)<PAGENAME>", pageName);
+        //Handle image resource dir
+        compiledText = compiledText.replaceAll("(?i)<imagesResourcesRel>", imagesResourcesRel);
+        //Handle upload resource dir
+        compiledText = compiledText.replaceAll("(?i)<uploadsResourcesRel>", uploadsResourcesRel);
         //Write
         FileUtilities.write(getMainFullFilePath(), compiledText, "UTF-8");
-        
     }
     //Mobile page
     public void compileMobile(String frameworkPath) { //Compile mobile php page
@@ -220,31 +235,44 @@ public class Page {
                 "href=" + m.group(1) + ">點此前往 Click Here<");
             m = p.matcher(compiledText);
         }
+        
         //All uploaded images/files have one more hierarchy now; use root
-        compiledText = compiledText.replace("uploads", "/uploads") ;
+        String uploadsResourcesRel = getDesignSetItem("uploadsResourcesRel");
+        if (uploadsResourcesRel == null) {
+            throw new NullPointerException("Null uploadsResourcesRel");
+        }
+        compiledText = compiledText.replace(uploadsResourcesRel, "/" + uploadsResourcesRel) ;
         //Make sure no extra / is present
-        compiledText = compiledText.replace("//uploads", "/uploads"); 
+        compiledText = compiledText.replace("//" + uploadsResourcesRel, "/" + uploadsResourcesRel); 
+        
+        //Do the similar for images-resources
+        String imagesResourcesRel = getDesignSetItem("imagesResourcesRel");
+        if (imagesResourcesRel == null) {
+            throw new NullPointerException("Null imagesResourcesRel");
+        }
+        compiledText = compiledText.replace(imagesResourcesRel, "/" + imagesResourcesRel) ;
+        compiledText = compiledText.replace("//" + imagesResourcesRel, "/" + imagesResourcesRel); 
+        
         //Calendar agenda view is better
         compiledText = compiledText.replace("calendar/embed?", "calendar/embed?mode=AGENDA&amp;");
+        
         //Make a larger font size
         compiledText = compiledText.replace("style=\" border-width:", "style=\" font-size: 48px; border-width:");
+        
         //Pages are now .php instead of .html 
-        //This one is buggy and can cause unwanted conversion
-        //But not an issue for the current website design
         //Need to implement a fix by collecting all compiled pages, and only change the ones compiled
-        //compiledText = compiledText.replace(".html", ".php");
-        //Simple fix
+        //Simple fix compared to "compiledText = compiledText.replace(".html", ".php");"
         String allPageNames = getDesignSetItem("allPageNames");
         if (allPageNames == null) {
             throw new NullPointerException("Null allPageNames");
         }
         String[] allPageNameArray = allPageNames.split("\n");
-        //String[] allPageTitlesArray = allPageTitles.split("\n");
         for (int i = 0; i < allPageNameArray.length; i++) {
             if (!allPageNameArray[i].equals("")) {
                 compiledText = compiledText.replace(allPageNameArray[i] + ".html", allPageNameArray[i] + ".php");
             }
         }
+        
         //Image needs to resize
         compiledText = compiledText.replaceAll("(?i)<img class=\"uploadedImage\" [^>]* src=",
             "<img class=\"uploadedImage\" max-width:100% max-height:100% src=");
@@ -358,19 +386,5 @@ public class Page {
         }
         return new String(navListText);
     }
-    //private String compileNavMainPage(String navText) {
-    //    String origNavStr = "<td class=\"nav-entry\"><a class=\"nav\" href=\"" 
-    //        + pageName + ".html\">" + pageTitle + "</a></td>";
-    //    String thisNavStr = "<td class=\"nav-entry-selected\"><a class=\"nav\" href=\""
-    //        + pageName + ".html\">" + pageTitle + "</a></td>";
-    //    return(navText.replace(origNavStr, thisNavStr));
-    //}
-    //private String compileNavMobilePage(String navText) {
-    //    String origNavStr = "<option value=\"/mobile/" 
-    //        + pageName + ".php\"";
-    //    String thisNavStr = "<option selected=\"selected\" value=\"/mobile/"
-    //        + pageName + ".php\"";
-    //    return(navText.replace(origNavStr, thisNavStr));
-    //}    
     
 }

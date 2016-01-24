@@ -97,9 +97,13 @@ public class WebModuleGallery extends WebModuleDefault{
         return 1;
     }
     public String getUploadDir() {
+        String uploadsResourcesRel = getDesignSetItem("uploadsResourcesRel");
+        if (uploadsResourcesRel == null) {
+            throw new NullPointerException("Null uploadsResourcesRel");
+        }
         return getDesignSetItem("rootDir") + File.separator 
             + getDesignSetItem("websiteDirRel") + File.separator
-            + "uploads" + File.separator
+            + uploadsResourcesRel + File.separator
             + getPageName() + File.separator
             + typeEnum.getValue() + "_" + getID();
     }
@@ -261,8 +265,12 @@ public class WebModuleGallery extends WebModuleDefault{
     }
     //Get full uploaded path from a partial one starting with "uploads\"
     private String getFullUploadedPath(String uploadedPath) {
-        if (uploadedPath.contains("uploads" + File.separator) 
-            && !uploadedPath.contains(File.separator + "uploads" + File.separator)) { //not full path
+        String uploadsResourcesRel = getDesignSetItem("uploadsResourcesRel");
+        if (uploadsResourcesRel == null) {
+            throw new NullPointerException("Null uploadsResourcesRel");
+        }
+        if (uploadedPath.contains(uploadsResourcesRel + File.separator) 
+            && !uploadedPath.contains(File.separator + uploadsResourcesRel + File.separator)) { //not full path
             String rootDir = getDesignSetItem("rootDir");
             String websiteDirRel = getDesignSetItem("websiteDirRel");
             if (rootDir == null) {

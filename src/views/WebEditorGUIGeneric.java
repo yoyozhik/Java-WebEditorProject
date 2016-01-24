@@ -411,4 +411,8 @@ public abstract class WebEditorGUIGeneric {
         fileOpen.showOpenDialog((JFrame) getObj(id, GUIObjTypeEnum.FRAME));
         return fileOpen;
     }
+    //frame Get an JFileChooser
+    public void frameShowOpenDialog(String id, JFileChooser fileOpen) {
+        fileOpen.showOpenDialog((JFrame) getObj(id, GUIObjTypeEnum.FRAME));        
+    }
 }

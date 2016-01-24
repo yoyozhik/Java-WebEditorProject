@@ -33,6 +33,7 @@ public class FileUploaderController {
     private final String uploadDir;
     private String sourcePath;
     private String pageName;
+    private JFileChooser fileOpen;
 
     public FileUploaderController(DesignInfoSet designInfoSet, 
         String cfgPath, String uploadDir, String pageName, int id, 
@@ -73,6 +74,7 @@ public class FileUploaderController {
                     + typeEnum.getValue());
         }        
         this.id = id;
+        this.fileOpen = new JFileChooser();
     }
     
     //Start file uploader
@@ -145,7 +147,9 @@ public class FileUploaderController {
     //Select file Listener
     private class SelFileActionListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
-            JFileChooser fileOpen = fileUploader.frameFileChooser("uploaderGUI", null, null);
+            fileOpen.resetChoosableFileFilters();
+            fileOpen.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            fileUploader.frameShowOpenDialog("uploaderGUI", fileOpen);
             if (fileOpen.getSelectedFile() == null) { //Cancelled
                 return;
             }

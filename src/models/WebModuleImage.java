@@ -33,9 +33,13 @@ public class WebModuleImage extends WebModuleDefault{
     }
     
     public String getUploadDir() {
+        String uploadsResourcesRel = getDesignSetItem("uploadsResourcesRel");
+        if (uploadsResourcesRel == null) {
+            throw new NullPointerException("Null uploadsResourcesRel");
+        }
         return getDesignSetItem("rootDir") + File.separator 
             + getDesignSetItem("websiteDirRel") + File.separator
-            + "uploads" + File.separator
+            + uploadsResourcesRel + File.separator
             + getPageName() + File.separator
             + typeEnum.getValue() + "_" + getID();
     }
@@ -107,6 +111,22 @@ public class WebModuleImage extends WebModuleDefault{
         return detail;
     }
     
+    //Get displayable image file
+    private String getFileIconFile() {
+        String imagesResourcesDesignResourceRel 
+            = getDesignSetItem("imagesResourcesDesignResourceRel");
+        if (imagesResourcesDesignResourceRel == null) {
+            throw new NullPointerException("Null imagesResourcesDesignResourceRel");
+        }
+        String typicalIcon = getFileExtension(getFileName()) + ".PNG";
+        File f = new File(imagesResourcesDesignResourceRel 
+            + File.separator + "typicalIcon");
+        if (f.exists()) {
+            return typicalIcon;
+        } else {
+            return "FILE.PNG";
+        }
+    }
     //upload
     public String upload(String sourcePath, String destPath) {
         if (sourcePath == null) {
@@ -162,8 +182,12 @@ public class WebModuleImage extends WebModuleDefault{
     }
     
     private String getFullUploadedPath(String uploadedPath) {
-        if (uploadedPath.contains("uploads" + File.separator) 
-            && !uploadedPath.contains(File.separator + "uploads" + File.separator)) { //not full path
+        String uploadsResourcesRel = getDesignSetItem("uploadsResourcesRel");
+        if (uploadsResourcesRel == null) {
+            throw new NullPointerException("Null uploadsResourcesRel");
+        }
+        if (uploadedPath.contains(uploadsResourcesRel + File.separator) 
+            && !uploadedPath.contains(File.separator + uploadsResourcesRel + File.separator)) { //not full path
             String rootDir = getDesignSetItem("rootDir");
             String websiteDirRel = getDesignSetItem("websiteDirRel");
             if (rootDir == null) {

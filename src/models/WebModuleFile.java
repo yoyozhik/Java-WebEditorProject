@@ -30,9 +30,13 @@ public class WebModuleFile extends WebModuleDefault{
     }
     
     public String getUploadDir() {
+        String uploadsResourcesRel = getDesignSetItem("uploadsResourcesRel");
+        if (uploadsResourcesRel == null) {
+            throw new NullPointerException("Null uploadsResourcesRel");
+        }
         return getDesignSetItem("rootDir") + File.separator 
             + getDesignSetItem("websiteDirRel") + File.separator
-            + "uploads" + File.separator
+            + uploadsResourcesRel + File.separator
             + getPageName() + File.separator
             + typeEnum.getValue() + "_" + getID();
     }
@@ -68,23 +72,43 @@ public class WebModuleFile extends WebModuleDefault{
         String detail = getResourceData();
         String rootDir = getDesignSetItem("rootDir");
         String websiteDirRel = getDesignSetItem("websiteDirRel");
+        String imagesResourcesRel = getDesignSetItem("imagesResourcesRel");
         if (rootDir == null) {
             throw new NullPointerException("Null rootDir");
         }
         if (websiteDirRel == null) {
             throw new NullPointerException("Null websiteDirRel");
         }
+        if (imagesResourcesRel == null) {
+            throw new NullPointerException("Null imagesResourcesRel");
+        }
         String webDir = rootDir + File.separator + websiteDirRel;
         UploadedFile upFile = new UploadedFile(webDir + File.separator + detail);
         detail = "<div>\n<table><tr><td><a href=\"" + upFile.getWebFilePath()
-            + "\"><img width=\"40\" height=\"40\" src=\"/images/" 
-            + upFile.getFileExtension() + ".PNG\"></a></td><td><table><tr><td class=\"File\">"
+            + "\"><img width=\"40\" height=\"40\" "
+            + "src=\"" + imagesResourcesRel + "/" 
+            + getFileIconFile() + "\"></a></td><td><table><tr><td class=\"File\">"
             + upFile.getFileName() + "</td></tr><tr><td class=\"FileDownload\"><a href=\""
             + upFile.getWebFilePath() + "\">Download</a> <span class=\"FileDownloadSize\">Size: "
             + upFile.getFileSize() + "</span></td></tr></table></td></tr></table>\n</div>";
         return detail;
     }
-    
+    //Get displayable image file
+    private String getFileIconFile() {
+        String imagesResourcesDesignResourceRel 
+            = getDesignSetItem("imagesResourcesDesignResourceRel");
+        if (imagesResourcesDesignResourceRel == null) {
+            throw new NullPointerException("Null imagesResourcesDesignResourceRel");
+        }
+        String typicalIcon = getFileExtension(getFileName()) + ".PNG";
+        File f = new File(imagesResourcesDesignResourceRel 
+            + File.separator + typicalIcon);
+        if (f.exists()) {
+            return typicalIcon;
+        } else {
+            return "FILE.PNG";
+        }
+    }
     //upload
     public String upload(String sourcePath, String destPath) {
         if (sourcePath == null) {
@@ -130,8 +154,12 @@ public class WebModuleFile extends WebModuleDefault{
     }
     //Get full uploaded path from a partial one starting with "uploads\"
     protected String getFullUploadedPath(String uploadedPath) {
-        if (uploadedPath.contains("uploads" + File.separator) 
-            && !uploadedPath.contains(File.separator + "uploads" + File.separator)) { //not full path
+        String uploadsResourcesRel = getDesignSetItem("uploadsResourcesRel");
+        if (uploadsResourcesRel == null) {
+            throw new NullPointerException("Null uploadsResourcesRel");
+        }
+        if (uploadedPath.contains(uploadsResourcesRel + File.separator) 
+            && !uploadedPath.contains(File.separator + uploadsResourcesRel + File.separator)) { //not full path
             String rootDir = getDesignSetItem("rootDir");
             String websiteDirRel = getDesignSetItem("websiteDirRel");
             if (rootDir == null) {

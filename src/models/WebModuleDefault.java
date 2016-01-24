@@ -79,6 +79,14 @@ public class WebModuleDefault {
         }
         return cfgPath;
     }
+    public String getFileExtension(String fileStr) {
+        String extension = "";
+        int i = fileStr.lastIndexOf('.');
+        if (i > 0) {
+            extension = fileStr.substring(i+1).toUpperCase();
+        }
+        return extension;
+    }
     public String getTarget() {
         return typeEnum.getValue() + "_" + id;
     }

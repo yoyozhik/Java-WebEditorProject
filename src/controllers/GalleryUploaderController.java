@@ -29,7 +29,8 @@ public class GalleryUploaderController {
     private int npr;
     private int descriptMode;
     private String pageName;
-    
+    private JFileChooser fileOpen;
+
     //parameters
     private final String cfgPath;
     private final String uploadDir;
@@ -62,12 +63,8 @@ public class GalleryUploaderController {
         this.uploadDir = uploadDir;
         this.id = id;
         this.pageName = pageName;
+        this.fileOpen = new JFileChooser();
         galleryUploader = new GalleryUploader();
-        //this.websiteDir = uploadDir;
-        //int i = uploadDir.indexOf(File.separator + "uploads" + File.separator);
-        //if (i > 0) {
-        //    this.websiteDir = uploadDir.substring(0, i);
-        //}
     }
 
     //Start page cfg
@@ -174,29 +171,38 @@ public class GalleryUploaderController {
    //Select file Listener
     private class SelectActionListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
+            fileOpen.resetChoosableFileFilters();
             FileNameExtensionFilter extFilter = new FileNameExtensionFilter(
                 "image files (*.bmp, *.wbmp, *.jpg, *.jpeg, *.png, *.gif )",
                 "bmp", "wbmp", "jpg", "jpeg", "png", "gif");
-            JFileChooser fileOpen = galleryUploader.frameFileChooser("uploaderGUI", null, extFilter);
-            if (fileOpen.getSelectedFile() == null) { //Cancelled
+            fileOpen.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            fileOpen.setFileFilter(extFilter); 
+            fileOpen.setMultiSelectionEnabled(true);
+            galleryUploader.frameShowOpenDialog("uploaderGUI", fileOpen);
+            if (fileOpen.getSelectedFiles() == null) { //Cancelled
                 return;
             }
-            String sourcePath = fileOpen.getSelectedFile().toString(); //Definitely full path; no need to add websiteDir
-            //UploadedImage upImage = new UploadedImage(sourcePath, "", "");                
-            String fileName = (new File(sourcePath)).getName();
-            int currentLoc = galleryUploader.tableGetSelectedRow("imagesTb");
-            //RegTableModel tbModel = (RegTableModel) galleryUploader.tableGetModel("imagesTb");
-            //if (tbModel.getRowCount() > 0) {
-            //    currentLoc = galleryUploader.tableGetSelectedRow("imagesTb");
-            //}
-            Object[] newRow = {sourcePath, fileName, ""};
-            if (currentLoc < 0) {  //Handle no-selection case
-                insertRow(0, newRow);
-            } else {
-                insertRow(currentLoc, newRow);
+            for (File f : fileOpen.getSelectedFiles()) {
+                if (f == null) {
+                    continue;
+                }
+                String sourcePath = f.toString(); //Definitely full path; no need to add websiteDir
+                //UploadedImage upImage = new UploadedImage(sourcePath, "", "");                
+                String fileName = (new File(sourcePath)).getName();
+                int currentLoc = galleryUploader.tableGetSelectedRow("imagesTb");
+                //RegTableModel tbModel = (RegTableModel) galleryUploader.tableGetModel("imagesTb");
+                //if (tbModel.getRowCount() > 0) {
+                //    currentLoc = galleryUploader.tableGetSelectedRow("imagesTb");
+                //}
+                Object[] newRow = {sourcePath, fileName, ""};
+                if (currentLoc < 0) {  //Handle no-selection case
+                    insertRow(0, newRow);
+                } else {
+                    insertRow(currentLoc, newRow);
+                }
+                galleryUploader.tableSetRowSelectionInterval("imagesTb", currentLoc + 1, currentLoc + 1);
             }
             galleryUploader.buttonSetEnabled("upload", true);
-            galleryUploader.tableSetRowSelectionInterval("imagesTb", currentLoc + 1, currentLoc + 1);
         }        
     }
     /*

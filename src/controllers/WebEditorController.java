@@ -35,13 +35,19 @@ public class WebEditorController {
     private ArrayList<Page> pages = new ArrayList<Page>();
     private int currentPage = -1;
     private HashMap<String, String> designSet = new HashMap<String, String>();
+    private JFileChooser fileOpen;
     
     //private FileEditorController fileEditorController;
     
     //Configurations
     private static final String resourceDirRel = "Resources";
     private static final String websiteDirRel = "Website";
-    private static final String rootCfgRel = "cfg" + File.separator + "Root.cfg";
+    private static final String rootCfgRel = "Design-Resources" + File.separator 
+        + "cfg" + File.separator + "Root.cfg";
+    private static final String imagesResourcesRel = "images-resource";
+    private static final String imagesResourcesDesignResourceRel = "Design-Resources" 
+        + File.separator + imagesResourcesRel;
+    private static final String uploadsResourcesRel = "uploads";
     private static final String lastOpenCfgRel = "cfg" + File.separator + "Last_OpenDir.txt";
     private String pagesCfgTxt;
     private String frameworkCfg;
@@ -56,7 +62,11 @@ public class WebEditorController {
         webEditor = new WebEditor();
         designSet.put("resourceDirRel", resourceDirRel);
         designSet.put("websiteDirRel", websiteDirRel);
+        designSet.put("imagesResourcesRel", imagesResourcesRel);
+        designSet.put("imagesResourcesDesignResourceRel", imagesResourcesDesignResourceRel);
+        designSet.put("uploadsResourcesRel", uploadsResourcesRel);
         designSet.put("lastOpenCfgRel", lastOpenCfgRel);
+        fileOpen = new JFileChooser();
     }
     
     //Initialize WebEditor GUI
@@ -359,8 +369,11 @@ public class WebEditorController {
     private class SelectRootActionListener implements ActionListener {
         @Override
         public void actionPerformed (ActionEvent event) {
-            JFileChooser fileOpen = webEditor.frameFileChooser("webEditorGUI", 
-                JFileChooser.DIRECTORIES_ONLY, null);
+            fileOpen.resetChoosableFileFilters();
+            fileOpen.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            webEditor.frameShowOpenDialog("webEditorGUI", fileOpen);
+            //JFileChooser fileOpen = webEditor.frameFileChooser("webEditorGUI", 
+            //    JFileChooser.DIRECTORIES_ONLY, null);
             if (fileOpen.getSelectedFile() == null) { //Cancelled
                 return;
             }
@@ -543,11 +556,15 @@ public class WebEditorController {
             webEditor.labelSetText("statusLb", "Compiled " + pages.size() + " Pages.");
         }
         //Copy images resource to website folder
-        String sourceImageDirStr = "images";
+        String sourceImageDirStr = imagesResourcesDesignResourceRel;
         String destImageDirStr = rootDir
             + File.separator + websiteDirRel
-            + File.separator + "images";
+            + File.separator + imagesResourcesRel;
         File sourceImageDir = new File(sourceImageDirStr);
+        if (!sourceImageDir.exists() || sourceImageDir.isFile()) {
+            throw new NullPointerException("Images resource folder does not exist: " 
+                + sourceImageDirStr);
+        }
         File[] allImages = sourceImageDir.listFiles();
         File destImageDir = new File(destImageDirStr);
         for (File f : allImages) {

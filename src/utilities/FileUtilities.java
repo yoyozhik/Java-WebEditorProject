@@ -49,6 +49,7 @@ public class FileUtilities {
             BufferedReader reader = new BufferedReader(
                 new FileReader(filepath));
             String line = reader.readLine();
+            line = readProcSeparator(line);
             //UnicodeConvert uc = new UnicodeConvert();
             reader.close();
             return line;
@@ -71,6 +72,7 @@ public class FileUtilities {
             if (enc.equals("UTF-8")) {
                 line = line.replace(UTF8_BOM, "");
             }
+            line = readProcSeparator(line);
             //UnicodeConvert uc = new UnicodeConvert();
             reader.close();
             return line;
@@ -97,6 +99,7 @@ public class FileUtilities {
                 lines.append("\n");
             }
             line = new String(lines);
+            line = readProcSeparator(line);
             //UnicodeConvert uc = new UnicodeConvert();
             reader.close();
             return line;
@@ -125,6 +128,7 @@ public class FileUtilities {
             if (enc.equals("UTF-8")) {
                 line = line.replace(UTF8_BOM, "");
             }
+            line = readProcSeparator(line);
             //UnicodeConvert uc = new UnicodeConvert();
             reader.close();
             return line;
@@ -146,6 +150,7 @@ public class FileUtilities {
         try {
             BufferedWriter writer = new BufferedWriter(
                 new FileWriter(filepath));
+            text = writeProcSeparator(text);
             writer.write(text);
             writer.close();
         } catch (Exception ex) {
@@ -168,6 +173,7 @@ public class FileUtilities {
             if (enc.equals("UTF-8") && ADD_UTF8_BOM) {
                 text = UTF8_BOM + text;
             }
+            text = writeProcSeparator(text);
             writer.write(text);
             writer.close();
         } catch (Exception ex) {
@@ -204,6 +210,7 @@ public class FileUtilities {
                 + fileDestStr);
         }
         try {
+            parentCreate(fileDestStr);
             if (overwrite) {
                 Files.copy(Paths.get(fileSourceStr), Paths.get(fileDestStr), 
                     StandardCopyOption.REPLACE_EXISTING);
@@ -519,6 +526,13 @@ public class FileUtilities {
     }
     public static String autoEllipsis(String text) {
         return autoEllipsis(text, 60);
+    }
+    
+    private static String readProcSeparator(String text) {
+        return text.replace("\\", File.separator);
+    }
+    private static String writeProcSeparator(String text) {
+        return text.replace(File.separator, "\\");
     }
     
     public static void main(String[] args) {
