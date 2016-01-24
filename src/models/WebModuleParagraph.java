@@ -12,6 +12,7 @@ class WebModuleParagraph {
 
 package models;
 import utilities.*;
+import controllers.DesignInfoSet;
 
 import java.util.HashMap;
 import java.util.regex.*;
@@ -20,8 +21,8 @@ import java.io.*;
 
 public class WebModuleParagraph extends WebModuleDefault{
     //Constructor
-    public WebModuleParagraph(HashMap<String, String> designSet, String pageName, int id) {
-        super(designSet, pageName, id);
+    public WebModuleParagraph(DesignInfoSet designInfoSet, String pageName, int id) {
+        super(designInfoSet, pageName, id);
         this.typeEnum = WebModuleEnum.PARAGRAPH;
     }
     

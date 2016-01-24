@@ -12,6 +12,7 @@ class WebModuleCode {
 
 package models;
 import utilities.*;
+import controllers.DesignInfoSet;
 
 import java.util.HashMap;
 import java.util.regex.*;
@@ -20,8 +21,8 @@ import java.io.*;
 
 public class WebModuleCode extends WebModuleDefault{
     //Constructor
-    public WebModuleCode(HashMap<String, String> designSet, String pageName, int id) {
-        super(designSet, pageName, id);
+    public WebModuleCode(DesignInfoSet designInfoSet, String pageName, int id) {
+        super(designInfoSet, pageName, id);
         this.typeEnum = WebModuleEnum.CODE;
     }
     

@@ -12,18 +12,19 @@ class ContentParser {
 
 package models;
 import utilities.*;
+import controllers.DesignInfoSet;
 
 import java.util.regex.*;
 import java.io.*;
 import java.util.HashMap;
 
 public class ContentParser {
-    private HashMap<String, String> designSet;
-    public ContentParser(HashMap<String, String> designSet) { //for compiling
-        setDesignSet(designSet);
+    private DesignInfoSet designInfoSet;
+    public ContentParser(DesignInfoSet designInfoSet) { //for compiling
+        setDesignInfoSet(designInfoSet);
     }
-    public void setDesignSet(HashMap<String, String> designSet) {
-        this.designSet = new HashMap<String, String>(designSet);
+    public void setDesignInfoSet(DesignInfoSet designInfoSet) {
+        this.designInfoSet = new DesignInfoSet(designInfoSet);
     }
     //Check if the given Type_Id section exists in the current text
     public boolean patternExists(String text, String target) {
@@ -48,6 +49,7 @@ public class ContentParser {
             return(-1);
         }
     }
+    
     //Find Type_Id sections from the given text
     //Returns the matcher object m; m.group(1) is the type, m.group(2) is the id 
     public Matcher patternTypeIdFind(String text) {
@@ -55,6 +57,24 @@ public class ContentParser {
         Pattern p = Pattern.compile(pattern);
         Matcher m = p.matcher(text);
         return(m);
+    }
+    
+    //Remove the first pattern found in the text
+    public String removeFirstPattern(String text) {
+        String pattern = "(?i)<<<###_" + "([0-9a-zA-Z_]+" + "_" + "\\d+)" + "_###>>>";
+        Pattern p = Pattern.compile(pattern);
+        Matcher m = p.matcher(text);
+        if (m.find()) {
+            int start = m.start();
+            int end = m.end();
+            if (end < text.length() - 1) {
+                return text.substring(0, start) + text.substring(end + 1, text.length());
+            } else {
+                return text.substring(0, start);
+            }
+        } else {
+            return text;
+        }
     }
     
     //Framework compile
@@ -92,25 +112,25 @@ public class ContentParser {
             WebModuleDefault module = null;
             switch (typeEnum) {
                 case TITLE: 
-                    module = new WebModuleTitle(designSet, pageName, id);
+                    module = new WebModuleTitle(new DesignInfoSet(designInfoSet), pageName, id);
                     break;
                 case PARAGRAPH: 
-                    module = new WebModuleParagraph(designSet, pageName, id);
+                    module = new WebModuleParagraph(new DesignInfoSet(designInfoSet), pageName, id);
                     break;
                 case CODE: 
-                    module = new WebModuleCode(designSet, pageName, id);
+                    module = new WebModuleCode(new DesignInfoSet(designInfoSet), pageName, id);
                     break;
                 case FILE: 
-                    module = new WebModuleFile(designSet, pageName, id);
+                    module = new WebModuleFile(new DesignInfoSet(designInfoSet), pageName, id);
                     break;
                 case IMAGE: 
-                    module = new WebModuleImage(designSet, pageName, id);
+                    module = new WebModuleImage(new DesignInfoSet(designInfoSet), pageName, id);
                     break;
                 case GALLERY: 
-                    module = new WebModuleGallery(designSet, pageName, id);
+                    module = new WebModuleGallery(new DesignInfoSet(designInfoSet), pageName, id);
                     break;
                 case DIVIDER: 
-                    module = new WebModuleDivider(designSet, pageName, id);
+                    module = new WebModuleDivider(new DesignInfoSet(designInfoSet), pageName, id);
                     break;
                 default:
                     throw new IllegalArgumentException("Type " 

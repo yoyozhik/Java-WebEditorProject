@@ -27,6 +27,7 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
+import java.util.regex.*;
 
 //import java.nio.file.StandardCopyOption.*;
 public class FileUtilities {
@@ -392,7 +393,7 @@ public class FileUtilities {
     }
     private static String getFormat(String path) {
         String format = "";
-        int i = path.indexOf(".");
+        int i = path.lastIndexOf(".");
         if (i >= 0) {
             format = path.substring(i + 1).toLowerCase();
         } else {
@@ -432,5 +433,99 @@ public class FileUtilities {
                 throw new IllegalArgumentException("Image format not supported: " + format);
         }
         return rgbType;
+    }
+    
+    //Advanced split function to take care of comma inside quotation marks
+    public static String[] recordSplit(String str) {
+        Pattern p = Pattern.compile("([^\"]*?|\"[^\"]*?\"),");
+        String s = str.trim() + ",";  //Need one more "," at the end
+        Matcher m = p.matcher(s);
+        ArrayList<String> strArrList = new ArrayList<String>();
+        while (m.find()) {
+            //System.out.println(m.start());
+            //System.out.println(m.end());
+            strArrList.add(m.group(1).replace("\"", ""));
+        }
+        String[] records = new String[strArrList.size()];
+        for (int i = 0; i < records.length; i++) {
+            records[i] = strArrList.get(i);
+        }
+        return records;
+    }
+    
+    public static boolean deleteFile(String targetPath) {
+        File f = new File(targetPath);
+        if (f.exists() && f.isFile()) {
+            try {
+               f.delete();
+            } catch (SecurityException ex) {
+                System.out.println("SecurityException when deleting "
+                    + targetPath);
+                ex.printStackTrace();
+                return false;
+            } catch (Exception ex) {
+                System.out.println("Exception when deleting "
+                    + targetPath);
+                ex.printStackTrace();
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    public static boolean deleteFolder(String targetPath) {
+        boolean success = true;
+        File d = new File(targetPath);
+        if (d.exists() && d.isDirectory()) {
+            File[] allSubs = d.listFiles();
+            for (File sF : allSubs) {
+                if (sF.isFile()) {
+                    //deleteFile needs to go first, otherwise it won't be run if success == false
+                    success =  deleteFile(sF.getAbsolutePath()) && success;
+                } else {
+                    success =  deleteFolder(sF.getAbsolutePath()) && success;
+                }
+            }
+        }
+        try {
+           d.delete();
+        } catch (SecurityException ex) {
+            System.out.println("SecurityException when deleting "
+                + targetPath);
+            ex.printStackTrace();
+            return false;
+        } catch (Exception ex) {
+            System.out.println("Exception when deleting "
+                + targetPath);
+            ex.printStackTrace();
+            return false;
+        }
+        return success;
+    }
+    
+    public static String autoEllipsis(String text, int maxLen) {
+        if (text == null) {
+            throw new NullPointerException("Null text");
+        }
+        int textLen = text.length();
+        if (textLen > maxLen) {
+            int firstHalf = Math.round((maxLen - 3) / 2);
+            return text.substring(0, firstHalf)
+                + "..."
+                + text.substring(firstHalf + textLen - maxLen + 3, textLen);
+        } else {
+            return text;
+        }
+    }
+    public static String autoEllipsis(String text) {
+        return autoEllipsis(text, 60);
+    }
+    
+    public static void main(String[] args) {
+        String s = "\"hahaha, this is it\",,umm,okay,\"\",\"well okay\",";
+        String[] r = recordSplit(s);
+        for (int i = 0; i < r.length; i++) {
+            System.out.println(i + ":" + r[i]);
+        }
     }
 }

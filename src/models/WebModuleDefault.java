@@ -20,29 +20,29 @@ import java.io.*;
 
 public class WebModuleDefault {
     protected WebModuleEnum typeEnum = WebModuleEnum.CODE;
-    private HashMap<String, String> designSet;
+    private DesignInfoSet designInfoSet;
     private String pageName;
     private int id;
     //Constructor
-    public WebModuleDefault(HashMap<String, String> designSet, String pageName, int id) {
-        if (designSet == null) {
-            throw new NullPointerException("Null designSet");
+    public WebModuleDefault(DesignInfoSet designInfoSet, String pageName, int id) {
+        if (designInfoSet == null) {
+            throw new NullPointerException("Null designInfoSet");
         }
         if (pageName == null) {
             throw new NullPointerException("Null pageName");
         }
-        this.designSet = new HashMap<String, String> (designSet);
+        this.designInfoSet = new DesignInfoSet(designInfoSet);
         this.pageName = pageName;
         this.id = id;
     }
-    public void setDesignSet(HashMap<String, String> designSet) {
-        this.designSet = new HashMap<String, String> (designSet);
+    public void setDesignInfoSet(DesignInfoSet designInfoSet) {
+        this.designInfoSet = new DesignInfoSet(designInfoSet);
     }
-    public HashMap<String, String> getDesignSet() {
-        return new HashMap<String, String> (designSet);
+    public DesignInfoSet getDesignInfoSet() {
+        return new DesignInfoSet(designInfoSet);
     }
     public String getDesignSetItem(String key) {
-        return designSet.get(key);
+        return designInfoSet.getDesignInfo(key);
     }
     public void setPageName(String pageName) {
         this.pageName = pageName;
@@ -53,9 +53,6 @@ public class WebModuleDefault {
     public WebModuleEnum getType() {
         return typeEnum;
     }
-    public String getDesignInfo(String key) {
-        return designSet.get(key);
-    }
     public String getPageName() {
         return pageName;
     }
@@ -63,8 +60,8 @@ public class WebModuleDefault {
         return id;
     }
     public String getCfgPath() {
-        String rootDir = designSet.get("rootDir");
-        String resourceDirRel = designSet.get("resourceDirRel");
+        String rootDir = getDesignSetItem("rootDir");
+        String resourceDirRel = getDesignSetItem("resourceDirRel");
         if (rootDir == null) {
             throw new NullPointerException("Null rootDir");
         }
@@ -116,11 +113,17 @@ public class WebModuleDefault {
         return text;
     }
     
+    //Delete the module
+    public boolean delete() {
+        String cfgPath = getCfgPath();
+        return FileUtilities.deleteFile(cfgPath);
+    }
+    
     public void startEditor() {
         FileEditorController fileEditorController = null;
         try {
             fileEditorController = new FileEditorController(getCfgPath(), 
-                new HashMap<String, String>(designSet),
+                new DesignInfoSet(designInfoSet),
                 pageName, id, typeEnum);
         } catch (IOException ex) {
             System.out.println("IOException when launching editor");

@@ -26,7 +26,7 @@ public class FileEditorController {
     
     //Optional 
     private WebModuleEnum typeEnum = null;
-    private HashMap<String, String> designSet = null;
+    private DesignInfoSet designInfoSet = null;
     private String pageName = null;
     private int id = 0;
     //parameters
@@ -46,12 +46,12 @@ public class FileEditorController {
     }
     
     public FileEditorController(String filePath, 
-        HashMap<String, String> designSet, 
+        DesignInfoSet designInfoSet, 
         String pageName, int id, WebModuleEnum typeEnum) 
         throws IOException {
         this(filePath);
-        if (designSet == null) {
-            throw new NullPointerException("Null designSet");
+        if (designInfoSet == null) {
+            throw new NullPointerException("Null designInfoSet");
         }
         if (typeEnum == null) {
             throw new NullPointerException("Null typeEnum");
@@ -69,7 +69,7 @@ public class FileEditorController {
                 throw new IllegalArgumentException("Type not Title/Paragraph/Code: "
                     + typeEnum.getValue());
         }
-        this.designSet = new HashMap<String, String> (designSet);
+        this.designInfoSet = new DesignInfoSet(designInfoSet);
         this.pageName = pageName;
         this.id = id;
     }
@@ -151,15 +151,15 @@ public class FileEditorController {
             WebModuleDefault module = null;
             switch (typeEnum) {
                 case TITLE:
-                    module = new WebModuleTitle(new HashMap<String, String>(designSet), 
+                    module = new WebModuleTitle(new DesignInfoSet(designInfoSet), 
                         pageName, id);
                     break;
                 case PARAGRAPH:
-                    module = new WebModuleParagraph(new HashMap<String, String>(designSet),
+                    module = new WebModuleParagraph(new DesignInfoSet(designInfoSet), 
                         pageName, id);
                     break;
                 case CODE:
-                    module = new WebModuleCode(new HashMap<String, String>(designSet),
+                    module = new WebModuleCode(new DesignInfoSet(designInfoSet), 
                         pageName, id);
                     break;
                 default:

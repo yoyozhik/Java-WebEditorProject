@@ -231,6 +231,14 @@ public abstract class WebEditorGUIGeneric {
     public String textAreaGetSelectedText(String id) {
        return ((RegJTextArea) getObj(id, GUIObjTypeEnum.TEXTAREA)).getSelectedText();
     }
+    //Get selected text starting location
+    public int textAreaGetSelectionStart(String id) {
+       return ((RegJTextArea) getObj(id, GUIObjTypeEnum.TEXTAREA)).getSelectionStart();
+    }
+    //Get selected text ending location
+    public int textAreaGetSelectionEnd(String id) {
+       return ((RegJTextArea) getObj(id, GUIObjTypeEnum.TEXTAREA)).getSelectionEnd();
+    }
     //Request focus
     public void textAreaRequestFocus(String id) {
         ((RegJTextArea) getObj(id, GUIObjTypeEnum.TEXTAREA)).requestFocus();
@@ -252,7 +260,7 @@ public abstract class WebEditorGUIGeneric {
     //Set tooltip in textField
     public void textFieldSetToolTipText(String id, String s) {
         ((JTextField) getObj(id, GUIObjTypeEnum.TEXTFIELD)).setToolTipText(s);
-    }   
+    }
     //Add document listener
     public void textFieldAddDocumentListener(String id, DocumentListener listener) {
         ((JTextField) getObj(id, GUIObjTypeEnum.TEXTFIELD)).getDocument().addDocumentListener(listener);

@@ -27,14 +27,14 @@ public class WebModuleImage extends WebModuleDefault{
     private String fileName = null;
 
     //Constructor
-    public WebModuleImage(HashMap<String, String> designSet, String pageName, int id) {
-        super(designSet, pageName, id);
+    public WebModuleImage(DesignInfoSet designInfoSet, String pageName, int id) {
+        super(designInfoSet, pageName, id);
         this.typeEnum = WebModuleEnum.IMAGE;
     }
     
     public String getUploadDir() {
-        return getDesignInfo("rootDir") + File.separator 
-            + getDesignInfo("websiteDirRel") + File.separator
+        return getDesignSetItem("rootDir") + File.separator 
+            + getDesignSetItem("websiteDirRel") + File.separator
             + "uploads" + File.separator
             + getPageName() + File.separator
             + typeEnum.getValue() + "_" + getID();
@@ -82,8 +82,8 @@ public class WebModuleImage extends WebModuleDefault{
     @Override
     public String retrieveContent() {
         String detail = getResourceData();
-        String rootDir = getDesignInfo("rootDir");
-        String websiteDirRel = getDesignInfo("websiteDirRel");
+        String rootDir = getDesignSetItem("rootDir");
+        String websiteDirRel = getDesignSetItem("websiteDirRel");
         if (rootDir == null) {
             throw new NullPointerException("Null rootDir");
         }
@@ -131,13 +131,26 @@ public class WebModuleImage extends WebModuleDefault{
         return (new UploadedImage(destPath, width, height)).genRecord();
     }
     
+    //Delete the module
+    @Override
+    public boolean delete() {
+        //Delete uploaded files
+        String uploadDir = getUploadDir();
+        boolean success = FileUtilities.deleteFolder(uploadDir);
+        //Delete cfg file
+        String cfgPath = getCfgPath();
+        success = FileUtilities.deleteFile(cfgPath) && success;
+        return success;
+    }
+
+    
     //start editor
     @Override
     public void startEditor() {
         FileUploaderController uploaderController = null;
         try {
             uploaderController 
-                = new FileUploaderController(getDesignSet(), 
+                = new FileUploaderController(getDesignInfoSet(), 
                 getCfgPath(), getUploadDir(), getPageName(), getID(), WebModuleEnum.IMAGE);
         } catch (IOException ex) {
             System.out.println("IOException when launching uploader");

@@ -12,6 +12,8 @@ public class Page {
 
 package models;
 import utilities.*;
+import controllers.DesignInfoSet;
+
 import java.io.*;
 import java.util.regex.*;
 import java.util.HashMap;
@@ -21,12 +23,12 @@ public class Page {
     private String pageName;
     private String pageTitle;
     private boolean displayInNav;
-    private HashMap<String, String> designSet;
+    private DesignInfoSet designInfoSet;
     
     public Page(int level, String pageName, String pageTitle, boolean displayInNav,
-        HashMap<String, String> designSet ) {
-        if (designSet == null) {
-            throw new NullPointerException("Null designSet when initializing Page");
+        DesignInfoSet designInfoSet ) {
+        if (designInfoSet == null) {
+            throw new NullPointerException("Null designInfoSet when initializing Page");
         }
         if (pageName == null) {
             throw new NullPointerException("Null pageName when initializing Page");
@@ -34,14 +36,14 @@ public class Page {
         if (pageTitle == null) {
             throw new NullPointerException("Null pageTitle when initializing Page");
         }
-        setDesignSet(designSet);
+        setDesignInfoSet(designInfoSet);
         this.level = level;
         this.pageName = pageName;
         this.pageTitle = pageTitle;
         this.displayInNav = displayInNav;
     }
-    public void setDesignSet(HashMap<String, String> designSet) {
-        this.designSet = new HashMap<String, String>(designSet);
+    public void setDesignInfoSet(DesignInfoSet designInfoSet) {
+        this.designInfoSet = new DesignInfoSet(designInfoSet);
     }
     public int getLevel() {
         return(level);
@@ -64,12 +66,12 @@ public class Page {
     public String getMobileFullFileName() {
         return(pageName + ".php");
     }
-    public String getDesignInfo(String key) {
-        return designSet.get(key);
+    public String getDesignSetItem(String key) {
+        return designInfoSet.getDesignInfo(key);
     }
     public String getMainFullFilePath() {
-        String rootDir = designSet.get("rootDir");
-        String websiteDirRel = designSet.get("websiteDirRel");
+        String rootDir = getDesignSetItem("rootDir");
+        String websiteDirRel = getDesignSetItem("websiteDirRel");
         if (rootDir == null) {
             throw new NullPointerException("Null rootDir");
         }
@@ -82,8 +84,8 @@ public class Page {
         return(path);
     }
     public String getMobileFullFilePath() {
-        String rootDir = designSet.get("rootDir");
-        String websiteDirRel = designSet.get("websiteDirRel");
+        String rootDir = getDesignSetItem("rootDir");
+        String websiteDirRel = getDesignSetItem("websiteDirRel");
         if (rootDir == null) {
             throw new NullPointerException("Null rootDir");
         }
@@ -98,8 +100,8 @@ public class Page {
     }
     //Get correponding parent dir of upload path
     public String getUploadParent() {
-        String rootDir = designSet.get("rootDir");
-        String websiteDirRel = designSet.get("websiteDirRel");
+        String rootDir = getDesignSetItem("rootDir");
+        String websiteDirRel = getDesignSetItem("websiteDirRel");
         if (rootDir == null) {
             throw new NullPointerException("Null rootDir");
         }
@@ -114,8 +116,8 @@ public class Page {
     }
     //Get correponding resource dir path
     public String getResourceCfgDir() {
-        String rootDir = designSet.get("rootDir");
-        String resourceDirRel = designSet.get("resourceDirRel");
+        String rootDir = getDesignSetItem("rootDir");
+        String resourceDirRel = getDesignSetItem("resourceDirRel");
         if (rootDir == null) {
             throw new NullPointerException("Null rootDir");
         }
@@ -152,20 +154,21 @@ public class Page {
     Compile page
     */
     //Main page
-    public void compileMain(String frameworkPath, String navText) { //Compile PC html page
-        if (navText == null) {
-            throw new NullPointerException("Null navText");
-        }
+    public void compileMain(String frameworkPath) { //Compile PC html page
+        //if (navText == null) {
+        //    throw new NullPointerException("Null navText");
+        //}
         String compiledText = compilePageNoNav(frameworkPath);
-        ContentParser cP = new ContentParser(designSet);
+        ContentParser cP = new ContentParser(new DesignInfoSet(designInfoSet));
         //Navigation
-        String navTextMod = compileNavMainPage(navText);
+        //String navTextMod = compileNavMainPage(navText);
+        String navTextMod = compileNavMainPage();
         compiledText = cP.compileNavigation(compiledText, navTextMod);
         //Handle mobile markers
         compiledText = compiledText.replace("<MOBILE>/", "");
         compiledText = UnicodeConvert.toUnicodes(compiledText);
         //Handle Website Info
-        String websiteNameCfg = designSet.get("websiteNameCfg");
+        String websiteNameCfg = getDesignSetItem("websiteNameCfg");
         if (websiteNameCfg == null) {
             throw new NullPointerException("Null websiteNameCfg");
         }
@@ -173,7 +176,7 @@ public class Page {
         if (websiteName == null) {
             websiteName = "";
         }
-        String websiteURLCfg = designSet.get("websiteURLCfg");
+        String websiteURLCfg = getDesignSetItem("websiteURLCfg");
         if (websiteURLCfg == null) {
             throw new NullPointerException("Null websiteURLCfg");
         }
@@ -191,14 +194,15 @@ public class Page {
         
     }
     //Mobile page
-    public void compileMobile(String frameworkPath, String navText) { //Compile mobile php page
-        if (navText == null) {
-            throw new NullPointerException("Null navText");
-        }
+    public void compileMobile(String frameworkPath) { //Compile mobile php page
+        //if (navText == null) {
+        //    throw new NullPointerException("Null navText");
+        //}
         String compiledText = compilePageNoNav(frameworkPath);
-        ContentParser cP = new ContentParser(designSet);
+        ContentParser cP = new ContentParser(new DesignInfoSet(designInfoSet));
         //Navigation
-        String navTextMod = compileNavMobilePage(navText);
+        //String navTextMod = compileNavMobilePage(navText);
+        String navTextMod = compileNavMobilePage();
         compiledText = cP.compileNavigation(compiledText, navTextMod);
         //Handle mobile markers
         compiledText = compiledText.replace("<MOBILE>/", "/mobile/");
@@ -208,7 +212,7 @@ public class Page {
         //Should think of a better and more generic way to handle
         //compiledText = compiledText.Replace(">https://sites.google.com/site/mbabuddhistfamilyprogram<",
         //    ">點此前往 Click Here<");
-        //Update: Fix by searching for the link directly; only modify the ones at least 20 long
+        //Update: Fix by searching for the link directly; only modify the ones at least 20 chars long
         Pattern p = Pattern.compile("(?i)href\\s*=([^<>]+)>\\s*([^<> ]{20}[^<> ]*)\\s*<");
         Matcher m = p.matcher(compiledText);
         while (m.find()) {
@@ -230,11 +234,12 @@ public class Page {
         //Need to implement a fix by collecting all compiled pages, and only change the ones compiled
         //compiledText = compiledText.replace(".html", ".php");
         //Simple fix
-        String allPageNames = designSet.get("allPageNames");
+        String allPageNames = getDesignSetItem("allPageNames");
         if (allPageNames == null) {
             throw new NullPointerException("Null allPageNames");
         }
         String[] allPageNameArray = allPageNames.split("\n");
+        //String[] allPageTitlesArray = allPageTitles.split("\n");
         for (int i = 0; i < allPageNameArray.length; i++) {
             if (!allPageNameArray[i].equals("")) {
                 compiledText = compiledText.replace(allPageNameArray[i] + ".html", allPageNameArray[i] + ".php");
@@ -252,7 +257,7 @@ public class Page {
         if (frameworkPath == null) {
             throw new NullPointerException("Null FrameworkPath");
         }
-        ContentParser cP = new ContentParser(designSet);
+        ContentParser cP = new ContentParser(new DesignInfoSet(designInfoSet));
         //Main page
         String compiledText = FileUtilities.read(frameworkPath, "UTF-8");
         if (compiledText == null) {
@@ -271,19 +276,101 @@ public class Page {
         return(compiledText);
     }
     //compile navigation
-    private String compileNavMainPage(String navText) {
-        String origNavStr = "<td class=\"nav-entry\"><a class=\"nav\" href=\"" 
-            + pageName + ".html\">" + pageTitle + "</a></td>";
-        String thisNavStr = "<td class=\"nav-entry-selected\"><a class=\"nav\" href=\""
-            + pageName + ".html\">" + pageTitle + "</a></td>";
-        return(navText.replace(origNavStr, thisNavStr));
+    private String compileNavMainPage() {
+        String allPageNames = getDesignSetItem("allPageNames");
+        String allPageTitles = getDesignSetItem("allPageTitles");
+        String allDisplayInNav = getDesignSetItem("allDisplayInNav");
+        if (allPageNames == null) {
+            throw new NullPointerException("Null allPageNames");
+        }
+        if (allPageTitles == null) {
+            throw new NullPointerException("Null allPageTitles");
+        }
+        if (allDisplayInNav == null) {
+            throw new NullPointerException("Null allDisplayInNav");
+        }
+        String[] allPageNameArray = allPageNames.split("\n");
+        String[] allPageTitleArray = allPageTitles.split("\n");
+        String[] allDisplayInNavArray = allDisplayInNav.split("\n");
+        if (allPageNameArray.length != allPageTitleArray.length 
+            || allPageNameArray.length != allDisplayInNavArray.length) {
+            throw new IllegalArgumentException("Page name / title / displayInNav array sizes do not match! "
+                + allPageNameArray.length 
+                + "vs." + allPageTitleArray.length 
+                + "vs." + allDisplayInNavArray.length);
+        }
+        StringBuilder navListText = new StringBuilder("");
+        String navClassOther = "nav-entry";
+        String navClassSelected = "nav-entry-selected";
+        String navClassThis;
+        for (int i = 0; i < allPageNameArray.length; i++) {
+            if (!allPageNameArray[i].equals("") && (Boolean.parseBoolean(allDisplayInNavArray[i]))) {
+                if (getPageName().equals(allPageNameArray[i])) {
+                    navClassThis = navClassSelected;
+                } else {
+                    navClassThis = navClassOther;
+                }
+                navListText.append("\n<tr><td class=\""+ navClassThis + "\"><a class=\"nav\" href=\""
+                    + allPageNameArray[i] + ".html\">"
+                    + allPageTitleArray[i] + "</a></td></tr>");
+            }            
+        }
+        return new String(navListText);
     }
-    private String compileNavMobilePage(String navText) {
-        String origNavStr = "<option value=\"/mobile/" 
-            + pageName + ".php\"";
-        String thisNavStr = "<option selected=\"selected\" value=\"/mobile/"
-            + pageName + ".php\"";
-        return(navText.replace(origNavStr, thisNavStr));
-    }    
+    private String compileNavMobilePage() {
+        String allPageNames = getDesignSetItem("allPageNames");
+        String allPageTitles = getDesignSetItem("allPageTitles");
+        String allDisplayInNav = getDesignSetItem("allDisplayInNav");
+        if (allPageNames == null) {
+            throw new NullPointerException("Null allPageNames");
+        }
+        if (allPageTitles == null) {
+            throw new NullPointerException("Null allPageTitles");
+        }
+        if (allDisplayInNav == null) {
+            throw new NullPointerException("Null allDisplayInNav");
+        }
+        String[] allPageNameArray = allPageNames.split("\n");
+        String[] allPageTitleArray = allPageTitles.split("\n");
+        String[] allDisplayInNavArray = allDisplayInNav.split("\n");
+        if (allPageNameArray.length != allPageTitleArray.length 
+            || allPageNameArray.length != allDisplayInNavArray.length) {
+            throw new IllegalArgumentException("Page name / title / displayInNav array sizes do not match! "
+                + allPageNameArray.length 
+                + "vs." + allPageTitleArray.length 
+                + "vs." + allDisplayInNavArray.length);
+        }
+        StringBuilder navListText = new StringBuilder("");
+        String navSelected = "selected=\"selected\" ";
+        String navNonSelected = "";
+        String navSelectedThis;
+        for (int i = 0; i < allPageNameArray.length; i++) {
+            if (!allPageNameArray[i].equals("") && (Boolean.parseBoolean(allDisplayInNavArray[i]))) {
+                if (getPageName().equals(allPageNameArray[i])) {
+                    navSelectedThis = navSelected;
+                } else {
+                    navSelectedThis = navNonSelected;
+                }
+                navListText.append("<option " + navSelectedThis + "value=\"/mobile/" 
+                    + allPageNameArray[i] + ".php\">" 
+                    + allPageTitleArray[i] + "</option>");
+            }            
+        }
+        return new String(navListText);
+    }
+    //private String compileNavMainPage(String navText) {
+    //    String origNavStr = "<td class=\"nav-entry\"><a class=\"nav\" href=\"" 
+    //        + pageName + ".html\">" + pageTitle + "</a></td>";
+    //    String thisNavStr = "<td class=\"nav-entry-selected\"><a class=\"nav\" href=\""
+    //        + pageName + ".html\">" + pageTitle + "</a></td>";
+    //    return(navText.replace(origNavStr, thisNavStr));
+    //}
+    //private String compileNavMobilePage(String navText) {
+    //    String origNavStr = "<option value=\"/mobile/" 
+    //        + pageName + ".php\"";
+    //    String thisNavStr = "<option selected=\"selected\" value=\"/mobile/"
+    //        + pageName + ".php\"";
+    //    return(navText.replace(origNavStr, thisNavStr));
+    //}    
     
 }

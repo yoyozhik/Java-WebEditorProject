@@ -114,6 +114,8 @@ public class WebEditorController {
         webEditor.labelSetText("rootDirLb", "Root Dir Unspecified");
         webEditor.textAreaSetText("contentTA", "");
         
+        webEditor.buttonSetEnabled("rename", false);
+        
         //Load root
         boolean rootLoaded = initRoot();
         if (!rootLoaded) {  //Root configuration not successful; nothing to load further
@@ -174,9 +176,12 @@ public class WebEditorController {
         pages = new ArrayList<Page>();
         webEditor.comboBoxStrRemoveAllItems("pagesBox");
         StringBuilder allPageNames = new StringBuilder("");
+        StringBuilder allPageTitles = new StringBuilder("");
+        StringBuilder allDisplayInNav = new StringBuilder("");
         if (line != null) {
             //Create a defensive copy of designSet
-            HashMap<String, String> designSetCopy = new HashMap<String, String>(designSet);
+            //HashMap<String, String> designSetCopy = new HashMap<String, String>(designSet);
+            DesignInfoSet designInfoSet = new DesignInfoSet(designSet);
             String[] lines = line.split("\n");
             for(String sline: lines) {
                 String[] pars = sline.split(",");  //What if the name or title contains ","?
@@ -193,16 +198,21 @@ public class WebEditorController {
                         + " (" + pageTitle + ")";
                     webEditor.comboBoxStrAddItem("pagesBox", item); 
                     allPageNames.append(pageName + "\n");
-                    pages.add(new Page(level, pageName, pageTitle, displayInNav, designSetCopy));
+                    allPageTitles.append(pageTitle + "\n");
+                    allDisplayInNav.append(Boolean.toString(displayInNav) + "\n");
+                    pages.add(new Page(level, pageName, pageTitle, displayInNav, designInfoSet));
                 }
             }
             webEditor.comboBoxStrSetSelectedIndex("pagesBox", 0);
         }
         designSet.put("allPageNames", new String(allPageNames));
+        designSet.put("allPageTitles", new String(allPageTitles));
+        designSet.put("allDisplayInNav", new String(allDisplayInNav));
         //Need to reset designSet copy
-        HashMap<String, String> designSetCopy = new HashMap<String, String>(designSet);
+        //HashMap<String, String> designSetCopy = new HashMap<String, String>(designSet);
+        DesignInfoSet designInfoSet = new DesignInfoSet(designSet);
         for (Page p : pages) {
-            p.setDesignSet(designSetCopy);
+            p.setDesignInfoSet(designInfoSet);
         }
     }
     //Setup config
@@ -236,9 +246,10 @@ public class WebEditorController {
             designSet.put("websiteURLCfg", websiteURLCfg);
             designSet.put("stylesheet", stylesheet);
             designSet.put("mobileStylesheet", mobileStylesheet); 
-            HashMap<String, String> designSetCopy = new HashMap<String, String>(designSet);
+            //HashMap<String, String> designSetCopy = new HashMap<String, String>(designSet);
+            DesignInfoSet designInfoSet = new DesignInfoSet(designSet);
             for (Page p : pages) {
-                p.setDesignSet(designSetCopy);
+                p.setDesignInfoSet(designInfoSet);
             }
         } else {
             webEditor.labelSetText("rootDirLb", "Root Dir Unspecified");
@@ -362,52 +373,79 @@ public class WebEditorController {
     //Edit
     //Edit function
     private void editAction() {
-        String chosen = webEditor.textAreaGetSelectedText("contentTA");
-        if (chosen == null) {
-            return;
-        }
-        HashMap<String, String> designSetCopy = new HashMap<String, String>(designSet);
-        ContentParser cP = new ContentParser(designSetCopy);
-        Matcher m = cP.patternTypeIdFind(chosen);
-        if (m.find()) {
-            String type = m.group(1).toUpperCase();
-            int id = Integer.parseInt(m.group(2));
-            String pageName = pages.get(currentPage).getPageName();
-            WebModuleDefault module = null;
-            switch(type) {
-                case "TITLE": 
-                    module = new WebModuleTitle(designSetCopy, pageName, id);
-                    break;
-                case "PARAGRAPH": 
-                    module = new WebModuleParagraph(designSetCopy, pageName, id);
-                    break;
-                case "CODE": 
-                    module = new WebModuleCode(designSetCopy, pageName, id);
-                    break;
-                case "FILE": 
-                    module = new WebModuleFile(designSetCopy, pageName, id);
-                    break;
-                case "IMAGE": 
-                    module = new WebModuleImage(designSetCopy, pageName, id);
-                    break;
-                case "GALLERY": 
-                    module = new WebModuleGallery(designSetCopy, pageName, id);
-                    break;
-                case "DIVIDER": 
-                    module = new WebModuleDivider(designSetCopy, pageName, id);
-                    break;
-                default:
-                    return;
-            }
+        WebModuleDefault module = getSelectedModule();
+        if (module != null) {
             module.startEditor();
         }        
     }
     //Delete action
     private void deleteAction() {
+        WebModuleDefault module = getSelectedModule();
+        if (module != null) {
+            boolean success = module.delete();
+            if (!success) {
+                //
+            }
+            DesignInfoSet designInfoSet = new DesignInfoSet(designSet);
+            ContentParser cP = new ContentParser(designInfoSet);
+            int location = webEditor.textAreaGetSelectionStart("contentTA");
+            String s = webEditor.textAreaGetText("contentTA");
+            String chosen = webEditor.textAreaGetSelectedText("contentTA");
+            s = s.substring(0, location)
+                + cP.removeFirstPattern(chosen)
+                + s.substring(location + chosen.length(), s.length());
+            webEditor.textAreaSetText("contentTA", s);
+            webEditor.labelSetText("statusLb", "Status: Deleted " 
+                + module.getType().getValue() + "_" + module.getID() + ".");
+        }
     }
+    
     //Rename action
     private void renameAction() {
     }
+    
+    private WebModuleDefault getSelectedModule() {
+        String chosen = webEditor.textAreaGetSelectedText("contentTA");
+        if (chosen == null) {
+            return null;
+        }
+        //HashMap<String, String> designSetCopy = new HashMap<String, String>(designSet);
+        DesignInfoSet designInfoSet = new DesignInfoSet(designSet);
+        ContentParser cP = new ContentParser(designInfoSet);
+        Matcher m = cP.patternTypeIdFind(chosen);
+        WebModuleDefault module = null;
+        if (m.find()) {
+            String type = m.group(1).toUpperCase();
+            int id = Integer.parseInt(m.group(2));
+            String pageName = pages.get(currentPage).getPageName();
+            switch(type) {
+                case "TITLE": 
+                    module = new WebModuleTitle(designInfoSet, pageName, id);
+                    break;
+                case "PARAGRAPH": 
+                    module = new WebModuleParagraph(designInfoSet, pageName, id);
+                    break;
+                case "CODE": 
+                    module = new WebModuleCode(designInfoSet, pageName, id);
+                    break;
+                case "FILE": 
+                    module = new WebModuleFile(designInfoSet, pageName, id);
+                    break;
+                case "IMAGE": 
+                    module = new WebModuleImage(designInfoSet, pageName, id);
+                    break;
+                case "GALLERY": 
+                    module = new WebModuleGallery(designInfoSet, pageName, id);
+                    break;
+                case "DIVIDER": 
+                    module = new WebModuleDivider(designInfoSet, pageName, id);
+                    break;
+                default:                    
+            }
+        }
+        return module;
+    }
+    
     //Edit button Listener
     private class EditActionListener implements ActionListener {
         @Override
@@ -435,8 +473,9 @@ public class WebEditorController {
         String type = typeEnum.getValue(); //getEnumVal(typeEnum);
         String text = webEditor.textAreaGetText("contentTA");
         int id = 1;
-        HashMap<String, String> designSetCopy = new HashMap<String, String>(designSet);
-        ContentParser cP = new ContentParser(designSetCopy);
+        //HashMap<String, String> designSetCopy = new HashMap<String, String>(designSet);
+        DesignInfoSet designInfoSet = new DesignInfoSet(designSet);
+        ContentParser cP = new ContentParser(designInfoSet);
         while (cP.patternExists(text, type, id)) {
             id++;            
         }
@@ -491,15 +530,15 @@ public class WebEditorController {
         }
         if (pages.size() > 0) {
             webEditor.labelSetText("statusLb", "Compiling...");
-            String navTextMain = compileBuildNav(0);
-            String navTextMobile = compileBuildNav(1);           
+            //String navTextMain = compileBuildNav(0);
+            //String navTextMobile = compileBuildNav(1);           
             
             for (int i = 0; i < pages.size(); i++) {
                 webEditor.labelSetText("statusLb", "Compiling Page " 
                     + pages.get(i).getPageName() + " ... " 
                     + "(" + (i+1) + "/" + pages.size() + ")");
-                pages.get(i).compileMain(frameworkCfg, navTextMain);
-                pages.get(i).compileMobile(mobileFrameworkCfg, navTextMobile);
+                pages.get(i).compileMain(frameworkCfg);
+                pages.get(i).compileMobile(mobileFrameworkCfg);
             }
             webEditor.labelSetText("statusLb", "Compiled " + pages.size() + " Pages.");
         }
@@ -522,6 +561,7 @@ public class WebEditorController {
             }
         }
     }
+    /*
     private String compileBuildNav(int webType) {
         //webType: 0 - main PC html;  1 - mobile php
         //Build navigation panel
@@ -549,7 +589,7 @@ public class WebEditorController {
         }
         return (new String(navListText));
     }
-    
+    */
     
     //Save button Listener
     private class SaveActionListener implements ActionListener {

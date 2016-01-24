@@ -25,8 +25,8 @@ public class WebModuleGallery extends WebModuleDefault{
     private int npr = 0;
     private int descriptMode = 0;
     //Constructor
-    public WebModuleGallery(HashMap<String, String> designSet, String pageName, int id) {
-        super(designSet, pageName, id);
+    public WebModuleGallery(DesignInfoSet designInfoSet, String pageName, int id) {
+        super(designInfoSet, pageName, id);
         this.typeEnum = WebModuleEnum.GALLERY;
     }
     
@@ -40,7 +40,8 @@ public class WebModuleGallery extends WebModuleDefault{
             this.data = new Object[lines.length][3];
             int i = 0;
             for (String ln : lines) {
-                String[] pars = ln.split(",");  //What if the content itself has ","?
+                //Use advanced splitting to handle , in "", like "hello, world"
+                String[] pars = FileUtilities.recordSplit(ln);  
                 if (pars.length >= 5) {
                     //System.out.println(line);
                     String sourcePath = getFullUploadedPath(pars[0].replace("\"", ""));
@@ -96,8 +97,8 @@ public class WebModuleGallery extends WebModuleDefault{
         return 1;
     }
     public String getUploadDir() {
-        return getDesignInfo("rootDir") + File.separator 
-            + getDesignInfo("websiteDirRel") + File.separator
+        return getDesignSetItem("rootDir") + File.separator 
+            + getDesignSetItem("websiteDirRel") + File.separator
             + "uploads" + File.separator
             + getPageName() + File.separator
             + typeEnum.getValue() + "_" + getID();
@@ -105,8 +106,8 @@ public class WebModuleGallery extends WebModuleDefault{
     //retrieve content
     @Override
     public String retrieveContent() {
-        String rootDir = getDesignInfo("rootDir");
-        String websiteDirRel = getDesignInfo("websiteDirRel");
+        String rootDir = getDesignSetItem("rootDir");
+        String websiteDirRel = getDesignSetItem("websiteDirRel");
         if (rootDir == null) {
             throw new NullPointerException("Null rootDir");
         }
@@ -171,6 +172,8 @@ public class WebModuleGallery extends WebModuleDefault{
     public void upload(Object[][] data) {
         StringBuilder textSB = new StringBuilder();
         int rCount = data.length;
+        //System.out.println(rCount);
+        //System.out.println(getDesignSetItem("rootDir"));
         for (int i = 0; i < rCount; i++) {
             String sourcePath = getFullUploadedPath(data[i][0].toString());
             if (sourcePath.equals("")) {
@@ -228,13 +231,26 @@ public class WebModuleGallery extends WebModuleDefault{
         String text = new String(textSB);
         return text;
     }
+    
+    //Delete the module
+    @Override
+    public boolean delete() {
+        //Delete uploaded files
+        String uploadDir = getUploadDir();
+        boolean success = FileUtilities.deleteFolder(uploadDir);
+        //Delete cfg file
+        String cfgPath = getCfgPath();
+        success = FileUtilities.deleteFile(cfgPath) && success;
+        return success;
+    }
+
     //start editor
     @Override
     public void startEditor() {
         GalleryUploaderController uploaderController = null;
         try {
             uploaderController 
-                = new GalleryUploaderController(getDesignSet(), getCfgPath(), getUploadDir(), getPageName(), getID());
+                = new GalleryUploaderController(getDesignInfoSet(), getCfgPath(), getUploadDir(), getPageName(), getID());
         } catch (IOException ex) {
             System.out.println("IOException when launching uploader");
             ex.printStackTrace();

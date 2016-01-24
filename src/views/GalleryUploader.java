@@ -158,14 +158,24 @@ public class GalleryUploader extends WebEditorGUIGeneric {
         this.moveDown = moveDown;
         //table.getDocument().getDocumentListener(new EditDocumentListener());
         //Bot
-        bot.setLayout(new FlowLayout(FlowLayout.LEADING));
+        RegJPanel opsPanel = new RegJPanel();
+        RegJPanel statusPanel = new RegJPanel();
+        bot.setLayout(new BorderLayout());
+        bot.add(BorderLayout.NORTH, opsPanel);
+        bot.add(BorderLayout.CENTER, statusPanel);
+        //Ops
+        opsPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
         RegJButton upload = new RegJButton("Upload / Save");
         RegJButton close = new RegJButton("Close");
-        bot.add(upload);
-        bot.add(close);
+        opsPanel.add(upload);
+        opsPanel.add(close);
         this.upload = upload;
         this.close = close;
-        
+        //Status
+        statusPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
+        JLabel statusLb = new JLabel("Status: ");
+        statusPanel.add(statusLb);
+        this.statusLb = statusLb;
         //GUI
         uploaderGUI.setSize(700,500);
         

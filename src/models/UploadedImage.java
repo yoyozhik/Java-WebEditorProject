@@ -55,6 +55,8 @@ public class UploadedImage extends UploadedFile {
             throw new IllegalArgumentException("i can only be 1, 2, 3");
         }
         record = record.trim();
+        //record = record.replace("(", "\(");
+        //record = record.replace(")", "\)");
         Pattern p = Pattern.compile("(?i)(.*?) width:(\\S*) height:(\\S*)");
         Matcher m = p.matcher(record);
         if (m.find()) {

@@ -34,14 +34,15 @@ public class GalleryUploaderController {
     private final String cfgPath;
     private final String uploadDir;
     //private String websiteDir;
-    private HashMap<String, String> designSet;
+    private DesignInfoSet designInfoSet;
        
     private final String[] colNames = {"SourceFile", "File Name", "Description"};
 
-    public GalleryUploaderController(HashMap<String, String> designSet, 
-        String cfgPath, String uploadDir, String pageName, int id) throws IOException {
-        if (designSet == null) {
-            throw new NullPointerException("Null designSet");
+    public GalleryUploaderController(DesignInfoSet designInfoSet, 
+        String cfgPath, String uploadDir, String pageName, int id)
+        throws IOException {
+        if (designInfoSet == null) {
+            throw new NullPointerException("Null designInfoSet");
         }
         if (cfgPath == null) {
             throw new NullPointerException("Null cfgPath");
@@ -52,7 +53,7 @@ public class GalleryUploaderController {
         if (pageName == null) {
             throw new NullPointerException("Null pageName");
         }
-        this.designSet = new HashMap<String, String> (designSet);
+        this.designInfoSet = new DesignInfoSet(designInfoSet);
         File f = new File(cfgPath);
         if (f.exists() && !f.isFile()) {
             throw new IOException("Already a dir: " + cfgPath);
@@ -98,8 +99,9 @@ public class GalleryUploaderController {
     private void init() {
         //(galleryUploader.tableGetColumn("imagsTb", colNames[0])).setPreferredWidth(
         //    Math.round(galleryUploader.tableGetPreferredSize("imagesTb").width * 0.1f));
-        WebModuleGallery module = new WebModuleGallery(new HashMap<String, String>(designSet), pageName, id);
-        galleryUploader.labelSetText("uploadDestLb", uploadDir);
+        WebModuleGallery module = new WebModuleGallery(new DesignInfoSet(designInfoSet), pageName, id);
+        galleryUploader.labelSetText("uploadDestLb", FileUtilities.autoEllipsis(uploadDir));
+        galleryUploader.labelSetToolTipText("uploadDestLb", uploadDir);
         galleryUploader.comboBoxIntRemoveAllItems("nprCB");
         galleryUploader.comboBoxStrRemoveAllItems("descriptModeCB");
         for (int i = 1; i <= module.getMaxNpr(); i++) {
@@ -253,6 +255,7 @@ public class GalleryUploaderController {
                 + tbModel.getRowCount() + "-1");
         }
         tbModel.insertRow(i, newRow);
+        galleryUploader.labelSetText("statusLb", "Status: Inserted row at location " + i + ".");
     }
     
     private void deleteRow(int i) {
@@ -263,6 +266,7 @@ public class GalleryUploaderController {
                 + tbModel.getRowCount() + "-1");
         }
         tbModel.removeRow(i);
+        galleryUploader.labelSetText("statusLb", "Status: Removed row " + i + ".");
     }
     
     private boolean swapRow(int i, int j) {
@@ -273,9 +277,11 @@ public class GalleryUploaderController {
                 + tbModel.getRowCount() + "-1");
         }
         if (j < 0 || j >= tbModel.getRowCount()) { //Do not swap invalid range
+            galleryUploader.labelSetText("statusLb", "Status: No swapping done.");
             return false;
         }
         tbModel.moveRow(i, i, j);
+        galleryUploader.labelSetText("statusLb", "Status: Swapped rows " + i + " and " + j + ".");
         return true;
     }
     //private class EditDocumentListener implements DocumentListener {
@@ -292,21 +298,35 @@ public class GalleryUploaderController {
     //}
     //upload
     private void upload() {
-        WebModuleGallery module = new WebModuleGallery(designSet, pageName, id);
+        galleryUploader.labelSetText("statusLb", "Status: uploading/saving...");
+        WebModuleGallery module = new WebModuleGallery(new DesignInfoSet(designInfoSet), pageName, id);
         TableModel tbModel = galleryUploader.tableGetModel("imagesTb");
         int rCount = tbModel.getRowCount();
         int cCount = tbModel.getColumnCount();
         Object[][] data = new Object[rCount][cCount];
-        for (int i = 0; i < rCount; i++) {
+        //System.out.println(designInfoSet.getDesignInfo("rootDir"));
+        int i;
+        int iR = 0;
+        for (i = 0; i < rCount; i++) {
             if (tbModel.getValueAt(i, 0).toString().equals("")) {
                 continue;
             }
             for (int j = 0; j < cCount; j++) {
-                data[i][j] = tbModel.getValueAt(i, j);
+                data[iR][j] = tbModel.getValueAt(i, j);
             }
+            iR++;
+            //System.out.println(i + " - " + data[i][0]);
+        }
+        int total = iR;
+        for (int k = iR; k < rCount; k++) {
+            data[k][0] = "";
+            //System.out.println(k + " - " + data[k][0]);
         }
         module.upload(data);
-        FileUtilities.write(module.getCfgPath(), module.genRecord(data, npr, descriptMode), "UTF-8");
+        FileUtilities.write(module.getCfgPath(), 
+            module.genRecord(data, npr, descriptMode), "UTF-8");
+        galleryUploader.labelSetText("statusLb", 
+            "Status: uploading/saving done." + " Total " + iR + " items.");
     }
     //Exit
     private void close() {

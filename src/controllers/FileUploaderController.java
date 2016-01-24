@@ -25,7 +25,7 @@ import java.util.regex.*;
 
 public class FileUploaderController {
     private FileUploader fileUploader;
-    private HashMap<String, String> designSet;
+    private DesignInfoSet designInfoSet;
     private WebModuleEnum typeEnum;
     private int id;
     //parameters
@@ -34,10 +34,11 @@ public class FileUploaderController {
     private String sourcePath;
     private String pageName;
 
-    public FileUploaderController(HashMap<String, String> designSet, 
-        String cfgPath, String uploadDir, String pageName, int id, WebModuleEnum typeEnum) throws IOException {
-        if (designSet == null) {
-            throw new NullPointerException("Null designSet");
+    public FileUploaderController(DesignInfoSet designInfoSet, 
+        String cfgPath, String uploadDir, String pageName, int id, 
+        WebModuleEnum typeEnum) throws IOException {
+        if (designInfoSet == null) {
+            throw new NullPointerException("Null designInfoSet");
         }
         if (cfgPath == null) {
             throw new NullPointerException("Null cfgPath");
@@ -51,7 +52,7 @@ public class FileUploaderController {
         if (typeEnum == null) {
             throw new NullPointerException("Null typeEnum");
         }
-        this.designSet = new HashMap<String, String> (designSet);
+        this.designInfoSet = new DesignInfoSet(designInfoSet);
         File f = new File(cfgPath);
         if (f.exists() && !f.isFile()) {
             throw new IOException("Already a dir: " + cfgPath);
@@ -106,19 +107,19 @@ public class FileUploaderController {
         fileUploader.buttonSetEnabled("select", true);
         switch (typeEnum) {
             case FILE:
-                module = new WebModuleFile(new HashMap<String, String>(designSet), pageName, id);
+                module = new WebModuleFile(new DesignInfoSet(designInfoSet), pageName, id);
                 sourcePath = ((WebModuleFile) module).getSourcePath();
                 if (sourcePath != null) {
-                    fileUploader.labelSetText("sourceLb", sourcePath);
+                    fileUploader.labelSetText("sourceLb", FileUtilities.autoEllipsis(sourcePath));
                     fileUploader.textFieldSetText("fileNameTF", 
                         ((WebModuleFile) module).getFileName());
                 }
                 break;
             case IMAGE:
-                module = new WebModuleImage(new HashMap<String, String>(designSet), pageName, id);
+                module = new WebModuleImage(new DesignInfoSet(designInfoSet), pageName, id);
                 sourcePath = ((WebModuleImage) module).getSourcePath();
                 if (sourcePath != null) {
-                    fileUploader.labelSetText("sourceLb", sourcePath);
+                    fileUploader.labelSetText("sourceLb", FileUtilities.autoEllipsis(sourcePath));
                     fileUploader.textFieldSetText("fileNameTF", 
                         ((WebModuleImage) module).getFileName());
                     fileUploader.textFieldSetText("widthTF", 
@@ -135,7 +136,7 @@ public class FileUploaderController {
             fileUploader.buttonSetEnabled("select", false);
         }
         fileUploader.buttonSetEnabled("upload", false);
-        fileUploader.labelSetText("uploadDestLb", uploadDir);
+        fileUploader.labelSetText("uploadDestLb", FileUtilities.autoEllipsis(uploadDir));
         fileUploader.labelSetToolTipText("uploadDestLb", uploadDir);
 
     }
@@ -149,7 +150,7 @@ public class FileUploaderController {
                 return;
             }
             sourcePath = fileOpen.getSelectedFile().toString();
-            fileUploader.labelSetText("sourceLb", sourcePath);
+            fileUploader.labelSetText("sourceLb", FileUtilities.autoEllipsis(sourcePath));
             fileUploader.labelSetToolTipText("sourceLb", sourcePath);
             String fileName = (new File(sourcePath)).getName();
             fileUploader.textFieldSetText("fileNameTF", fileName);
@@ -202,13 +203,13 @@ public class FileUploaderController {
         String status = "";
         switch (typeEnum) {
             case FILE:
-                module = new WebModuleFile(new HashMap<String, String>(designSet), pageName, id);
+                module = new WebModuleFile(new DesignInfoSet(designInfoSet), pageName, id);
                 status = ((WebModuleFile) module).upload(sourcePath, destPath);
                 FileUtilities.write(module.getCfgPath(), 
                     ((WebModuleFile) module).genRecord(destPath), "UTF-8");
                 break;
             case IMAGE:
-                module = new WebModuleImage(new HashMap<String, String>(designSet), pageName, id);
+                module = new WebModuleImage(new DesignInfoSet(designInfoSet), pageName, id);
                 status = ((WebModuleImage) module).upload(sourcePath, destPath);
                 FileUtilities.write(module.getCfgPath(), 
                     ((WebModuleImage) module).genRecord(destPath,
@@ -231,7 +232,7 @@ public class FileUploaderController {
     public static void main(String[] args) {
         FileUploaderController fUp = null;
         try {
-            fUp = new FileUploaderController(new HashMap<String, String>(), "a", "b", "", 1, WebModuleEnum.FILE);
+            fUp = new FileUploaderController(new DesignInfoSet(new HashMap<String, String>()), "a", "b", "", 1, WebModuleEnum.FILE);
         } catch(Exception ex) {
             ex.printStackTrace();
         }
