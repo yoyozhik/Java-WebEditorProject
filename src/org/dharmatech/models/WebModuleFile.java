@@ -45,6 +45,7 @@ public class WebModuleFile extends WebModuleDefault{
         String cfgPath = getCfgPath();
         String line = FileUtilities.readLine(cfgPath, "UTF-8");
         if (line != null) { //Already uploaded before
+            line = FileUtilities.readProcSeparator(line);
             line = getFullUploadedPath(line.trim());
             UploadedFile upFile = new UploadedFile(line);
             sourcePath = upFile.getFilePath(); 

@@ -32,6 +32,7 @@ public abstract class WebEditorGUIGeneric {
     private HashMap<String, JTextField> textFieldGroup;
     private HashMap<String, JMenuItem> menuItemGroup;
     private HashMap<String, RegJTable> tableGroup;
+    private HashMap<String, RegJPanel> panelGroup;
         
     private HashMap<String, JComboBox<String>> comboBoxStrGroup;
     private HashMap<String, JComboBox<Integer>> comboBoxIntGroup;
@@ -57,6 +58,9 @@ public abstract class WebEditorGUIGeneric {
     }
     public void initGUIObjsTable(HashMap<String, RegJTable> tableGroup) {
         this.tableGroup = tableGroup;
+    }
+    public void initGUIObjsPanel(HashMap<String, RegJPanel> panelGroup) {
+        this.panelGroup = panelGroup;
     }    
     public void initGUIObjsComboBoxStr(HashMap<String, JComboBox<String>> comboBoxStrGroup) {
         this.comboBoxStrGroup = comboBoxStrGroup;
@@ -86,6 +90,9 @@ public abstract class WebEditorGUIGeneric {
     public void addGUIObjsTable(String str, RegJTable obj) {
         tableGroup.put(str, obj);
     }
+    public void addGUIObjsPanel(String str, RegJPanel obj) {
+        panelGroup.put(str, obj);
+    }
     public void addGUIObjsComboBoxStr(String str, JComboBox<String> obj) {
         comboBoxStrGroup.put(str, obj);
     }
@@ -108,6 +115,7 @@ public abstract class WebEditorGUIGeneric {
             case TEXTFIELD: group = textFieldGroup; break;
             case FRAME: group = frameGroup; break;
             case TABLE: group = tableGroup; break;
+            case PANEL: group = panelGroup; break;
             default: return false;
         }
         if (group == null) {
@@ -135,6 +143,7 @@ public abstract class WebEditorGUIGeneric {
             case TEXTFIELD: group = textFieldGroup; break;
             case FRAME: group = frameGroup; break;
             case TABLE: group = tableGroup; break;
+            case PANEL: group = panelGroup; break;
         }
         if (group == null) {
             throw new NullPointerException("Null " + type + " group");
@@ -376,6 +385,25 @@ public abstract class WebEditorGUIGeneric {
     }
     public void tableSetColumnSelectionInterval(String id, int start, int end) {
         ((RegJTable) getObj(id, GUIObjTypeEnum.TABLE)).setColumnSelectionInterval(start, end);
+    }
+    
+    //Panel
+    //SetVisible
+    public void panelSetVisible(String id, boolean visible) {
+        ((RegJPanel) getObj(id, GUIObjTypeEnum.PANEL)).setVisible(visible);
+    }
+    //Set Layout
+    public void panelSetLayout(String id, LayoutManager lObj) {
+        ((RegJPanel) getObj(id, GUIObjTypeEnum.PANEL)).setLayout(lObj);
+    }
+    //Set Box Layout
+    public void panelSetBoxLayout(String id, int style) {
+        RegJPanel p = (RegJPanel) getObj(id, GUIObjTypeEnum.PANEL);
+        p.setLayout(new BoxLayout(p, style));
+    }
+    //Add Component
+    public void panelAddObj(String id, Component cObj) {
+        ((RegJPanel) getObj(id, GUIObjTypeEnum.PANEL)).add(cObj);
     }
    
     //Frame

@@ -69,5 +69,10 @@ public class UnicodeConvert {
         System.out.println(st);
         System.out.println(a);
         System.out.println(b);
+        String ch = "點此前往";
+        String chu = u.toUnicodes(ch);
+        System.out.println(ch);
+        System.out.println(chu);
+        System.out.println(u.toChars(chu));
     }        
 }

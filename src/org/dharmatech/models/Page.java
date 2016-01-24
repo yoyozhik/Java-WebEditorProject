@@ -168,45 +168,14 @@ public class Page {
         //String navTextMod = compileNavMainPage(navText);
         String navTextMod = compileNavMainPage();
         compiledText = cP.compileNavigation(compiledText, navTextMod);
-        //Handle mobile markers
-        compiledText = compiledText.replace("<MOBILE>/", "");
-        compiledText = UnicodeConvert.toUnicodes(compiledText);
-        //Handle Website Info
-        String websiteNameCfg = getDesignSetItem("websiteNameCfg");
-        if (websiteNameCfg == null) {
-            throw new NullPointerException("Null websiteNameCfg");
-        }
-        String websiteName = FileUtilities.readLine(websiteNameCfg, "UTF-8");
-        if (websiteName == null) {
-            websiteName = "";
-        }
-        String websiteURLCfg = getDesignSetItem("websiteURLCfg");
-        if (websiteURLCfg == null) {
-            throw new NullPointerException("Null websiteURLCfg");
-        }
-        String websiteURL = FileUtilities.readLine(websiteURLCfg, "UTF-8");
-        if (websiteURL == null) {
-            websiteURL = "";
-        }
-        String imagesResourcesRel = getDesignSetItem("imagesResourcesRel");
-        if (imagesResourcesRel == null) {
-            throw new NullPointerException("Null imagesResourcesRel");
-        }
-        String uploadsResourcesRel = getDesignSetItem("uploadsResourcesRel");
-        if (uploadsResourcesRel == null) {
-            throw new NullPointerException("Null uploadsResourcesRel");
-        }
-        compiledText = compiledText.replaceAll("(?i)<WEBURL>", websiteURL);
-        //Handle page title
-        compiledText = compiledText.replaceAll("(?i)<PAGETITLE>", pageTitle + " - " + websiteName);
-        //Handle page name
-        compiledText = compiledText.replaceAll("(?i)<PAGENAME>", pageName);
-        //Handle image resource dir
-        compiledText = compiledText.replaceAll("(?i)<imagesResourcesRel>", imagesResourcesRel);
-        //Handle upload resource dir
-        compiledText = compiledText.replaceAll("(?i)<uploadsResourcesRel>", uploadsResourcesRel);
+        //Handle markers
+        compiledText = handleMarkers(compiledText, false);
+        
+        //Unicode
+        compiledText = UnicodeConvert.toUnicodes(compiledText);        
         //Write
-        FileUtilities.write(getMainFullFilePath(), compiledText, "UTF-8");
+        //FileUtilities.write(getMainFullFilePath(), compiledText, "UTF-8");
+        FileUtilities.write(getMainFullFilePath(), compiledText);
     }
     //Mobile page
     public void compileMobile(String frameworkPath) { //Compile mobile php page
@@ -219,10 +188,18 @@ public class Page {
         //String navTextMod = compileNavMobilePage(navText);
         String navTextMod = compileNavMobilePage();
         compiledText = cP.compileNavigation(compiledText, navTextMod);
-        //Handle mobile markers
-        compiledText = compiledText.replace("<MOBILE>/", "/mobile/");
-        
+        //Handle markers
+        compiledText = handleMarkers(compiledText, true);
+
         //Additional modifications required
+        //Php header for navigation
+        compiledText = "<?php\n"
+            + "if (isset($_POST['nav'])) {\n" 
+            + "    header(\"Location: $_POST[nav]\");\n"
+            + "}\n" 
+            + "?>\n"
+            + compiledText;
+        
         //This one is customized: Web URL is too long
         //Should think of a better and more generic way to handle
         //compiledText = compiledText.Replace(">https://sites.google.com/site/mbabuddhistfamilyprogram<",
@@ -231,8 +208,13 @@ public class Page {
         Pattern p = Pattern.compile("(?i)href\\s*=([^<>]+)>\\s*([^<> ]{20}[^<> ]*)\\s*<");
         Matcher m = p.matcher(compiledText);
         while (m.find()) {
-            compiledText = compiledText.replaceAll("(?i)href\\s*=([^<>]+)>\\s*([^<> ]{20}[^<> ]*)\\s*<", 
-                "href=" + m.group(1) + ">點此前往 Click Here<");
+            compiledText = compiledText.replaceAll("(?i)href\\s*=" 
+                + m.group(1).replace("\\","\\\\") + ">\\s*" 
+                + m.group(2).replace("\\","\\\\") + "\\s*<", 
+                "href=" + m.group(1) + ">" 
+                + UnicodeConvert.toUnicodes("&#40670;&#27492;&#21069;&#24448;") + " Click Here<"); 
+                //Chinese characters cannot be handled directly as a String
+                //點此前往 the unicode is &#40670;&#27492;&#21069;&#24448;
             m = p.matcher(compiledText);
         }
         
@@ -278,7 +260,54 @@ public class Page {
             "<img class=\"uploadedImage\" max-width:100% max-height:100% src=");
             
         compiledText = UnicodeConvert.toUnicodes(compiledText);
-        FileUtilities.write(getMobileFullFilePath(), compiledText, "UTF-8");
+        //FileUtilities.write(getMobileFullFilePath(), compiledText, "UTF-8");
+        FileUtilities.write(getMobileFullFilePath(), compiledText);
+    }
+    //Handle markers
+    private String handleMarkers(String text, boolean isMobile) {
+        String compiledText = text;
+        //Handle mobile markers
+        if (isMobile) {
+            compiledText = compiledText.replace("<MOBILE>/", "/mobile/");
+        } else {
+            compiledText = compiledText.replace("<MOBILE>/", "");
+        }
+        //Handle Website Info
+        String websiteNameCfg = getDesignSetItem("websiteNameCfg");
+        if (websiteNameCfg == null) {
+            throw new NullPointerException("Null websiteNameCfg");
+        }
+        String websiteName = FileUtilities.readLine(websiteNameCfg, "UTF-8");
+        if (websiteName == null) {
+            websiteName = "";
+        }
+        String websiteURLCfg = getDesignSetItem("websiteURLCfg");
+        if (websiteURLCfg == null) {
+            throw new NullPointerException("Null websiteURLCfg");
+        }
+        String websiteURL = FileUtilities.readLine(websiteURLCfg, "UTF-8");
+        if (websiteURL == null) {
+            websiteURL = "";
+        }
+        String imagesResourcesRel = getDesignSetItem("imagesResourcesRel");
+        if (imagesResourcesRel == null) {
+            throw new NullPointerException("Null imagesResourcesRel");
+        }
+        String uploadsResourcesRel = getDesignSetItem("uploadsResourcesRel");
+        if (uploadsResourcesRel == null) {
+            throw new NullPointerException("Null uploadsResourcesRel");
+        }
+        compiledText = compiledText.replaceAll("(?i)<WEBURL>", websiteURL);
+        //Handle page title
+        compiledText = compiledText.replaceAll("(?i)<PAGETITLE>", pageTitle + " - " + websiteName);
+        //Handle page name
+        compiledText = compiledText.replaceAll("(?i)<PAGENAME>", pageName);
+        //Handle image resource dir
+        compiledText = compiledText.replaceAll("(?i)<imagesResourcesRel>", imagesResourcesRel);
+        //Handle upload resource dir
+        compiledText = compiledText.replaceAll("(?i)<uploadsResourcesRel>", uploadsResourcesRel);
+        
+        return compiledText;
     }
     //Compile everything except navigation 
     private String compilePageNoNav(String frameworkPath) {
@@ -340,7 +369,7 @@ public class Page {
                 }
                 navListText.append("\n<tr><td class=\""+ navClassThis + "\"><a class=\"nav\" href=\""
                     + allPageNameArray[i] + ".html\">"
-                    + allPageTitleArray[i] + "</a></td></tr>");
+                    + allPageTitleArray[i] + "</a></td></tr>\n");
             }            
         }
         return new String(navListText);
@@ -381,7 +410,7 @@ public class Page {
                 }
                 navListText.append("<option " + navSelectedThis + "value=\"/mobile/" 
                     + allPageNameArray[i] + ".php\">" 
-                    + allPageTitleArray[i] + "</option>");
+                    + allPageTitleArray[i] + "</option>\n");
             }            
         }
         return new String(navListText);

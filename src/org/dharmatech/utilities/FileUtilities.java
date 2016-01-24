@@ -49,7 +49,7 @@ public class FileUtilities {
             BufferedReader reader = new BufferedReader(
                 new FileReader(filepath));
             String line = reader.readLine();
-            line = readProcSeparator(line);
+            //line = readProcSeparator(line);
             //UnicodeConvert uc = new UnicodeConvert();
             reader.close();
             return line;
@@ -72,7 +72,7 @@ public class FileUtilities {
             if (enc.equals("UTF-8")) {
                 line = line.replace(UTF8_BOM, "");
             }
-            line = readProcSeparator(line);
+            //line = readProcSeparator(line);
             //UnicodeConvert uc = new UnicodeConvert();
             reader.close();
             return line;
@@ -99,7 +99,7 @@ public class FileUtilities {
                 lines.append("\n");
             }
             line = new String(lines);
-            line = readProcSeparator(line);
+            //line = readProcSeparator(line);
             //UnicodeConvert uc = new UnicodeConvert();
             reader.close();
             return line;
@@ -128,7 +128,7 @@ public class FileUtilities {
             if (enc.equals("UTF-8")) {
                 line = line.replace(UTF8_BOM, "");
             }
-            line = readProcSeparator(line);
+            //line = readProcSeparator(line);
             //UnicodeConvert uc = new UnicodeConvert();
             reader.close();
             return line;
@@ -528,10 +528,10 @@ public class FileUtilities {
         return autoEllipsis(text, 60);
     }
     
-    private static String readProcSeparator(String text) {
+    public static String readProcSeparator(String text) {
         return text.replace("\\", File.separator);
     }
-    private static String writeProcSeparator(String text) {
+    public static String writeProcSeparator(String text) {
         return text.replace(File.separator, "\\");
     }
     

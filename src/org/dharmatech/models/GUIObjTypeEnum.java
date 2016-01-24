@@ -15,7 +15,9 @@ public enum GUIObjTypeEnum {
     FRAME("FRAME"), 
     MENUITEM("MENUITEM"), 
     TABLE("TABLE"), 
-    COMBOBOXSTR("COMBOBOXSTR");
+    PANEL("PANEL"), 
+    COMBOBOXSTR("COMBOBOXSTR"),
+    COMBOBOXINT("COMBOBOXINT");
 
     
     String val;

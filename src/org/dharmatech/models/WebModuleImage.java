@@ -48,6 +48,7 @@ public class WebModuleImage extends WebModuleDefault{
         String cfgPath = getCfgPath();
         String line = FileUtilities.readLine(cfgPath, "UTF-8");
         if (line != null) { //Already uploaded before
+            line = FileUtilities.readProcSeparator(line);
             line = getFullUploadedPath(line.trim());
             UploadedImage upFile = new UploadedImage(line);
             sourcePath = upFile.getFilePath(); 
@@ -148,7 +149,8 @@ public class WebModuleImage extends WebModuleDefault{
         if (height == null) {
             throw new NullPointerException("Null height");
         }
-        return (new UploadedImage(destPath, width, height)).genRecord();
+        String line = (new UploadedImage(destPath, width, height)).genRecord();
+        return FileUtilities.writeProcSeparator(line);
     }
     
     //Delete the module

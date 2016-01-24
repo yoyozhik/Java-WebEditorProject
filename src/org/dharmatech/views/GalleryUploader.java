@@ -76,12 +76,19 @@ public class GalleryUploader extends WebEditorGUIGeneric {
     private void setupGUI() {
         JFrame uploaderGUI = new JFrame();
         this.uploaderGUI = uploaderGUI;
+        RegJPanel leftMain = new RegJPanel();
+        RegJPanel rightPreview = new RegJPanel();
+        uploaderGUI.getContentPane().add(BorderLayout.WEST, leftMain);
+        uploaderGUI.getContentPane().add(BorderLayout.CENTER, rightPreview);
+        
+        //Left side - main items
         RegJPanel top = new RegJPanel();
         RegJPanel center = new RegJPanel();
         RegJPanel bot = new RegJPanel();
-        uploaderGUI.getContentPane().add(BorderLayout.NORTH, top);
-        uploaderGUI.getContentPane().add(BorderLayout.CENTER, center);
-        uploaderGUI.getContentPane().add(BorderLayout.SOUTH, bot);
+        leftMain.setLayout(new BorderLayout());
+        leftMain.add(BorderLayout.NORTH, top);
+        leftMain.add(BorderLayout.CENTER, center);
+        leftMain.add(BorderLayout.SOUTH, bot);        
         
         //Top
         top.setLayout(new BoxLayout(top, BoxLayout.Y_AXIS));
@@ -176,6 +183,12 @@ public class GalleryUploader extends WebEditorGUIGeneric {
         JLabel statusLb = new JLabel("Status: ");
         statusPanel.add(statusLb);
         this.statusLb = statusLb;
+        
+        //Right: Preview
+        //rightPreview.setPreferredSize(new Dimension(300, 400));
+        RegJPanel preview = new RegJPanel();
+        rightPreview.setLayout(new BorderLayout());
+        rightPreview.add(BorderLayout.NORTH, preview);        
         //GUI
         uploaderGUI.setSize(700,500);
         
