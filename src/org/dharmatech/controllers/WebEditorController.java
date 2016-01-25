@@ -298,6 +298,7 @@ public class WebEditorController {
             //String line = FileUtilities.read(pagePath, "UTF-8");
             webEditor.textAreaSetText("contentTA", line);
             webEditor.textAreaSetCaretPosition("contentTA", 0);
+            webEditor.textAreaSetInfo("contentTA", new DesignInfoSet(designSet), pages.get(sel).getPageName());
             webEditor.buttonSetEnabled("save", false);
             webEditor.textAreaRequestFocus("contentTA");
         }
