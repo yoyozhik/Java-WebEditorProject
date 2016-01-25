@@ -210,15 +210,20 @@ public class FileUploaderController {
                 module = new WebModuleFile(new DesignInfoSet(designInfoSet), pageName, id);
                 status = ((WebModuleFile) module).upload(sourcePath, destPath);
                 FileUtilities.write(module.getCfgPath(), 
-                    ((WebModuleFile) module).genRecord(destPath), "UTF-8");
+                    FileUtilities.writeProcSeparator(
+                        ((WebModuleFile) module).genRecord(destPath)
+                    ),
+                    "UTF-8");
                 break;
             case IMAGE:
                 module = new WebModuleImage(new DesignInfoSet(designInfoSet), pageName, id);
                 status = ((WebModuleImage) module).upload(sourcePath, destPath);
                 FileUtilities.write(module.getCfgPath(), 
-                    ((WebModuleImage) module).genRecord(destPath,
-                    fileUploader.textFieldGetText("widthTF"), 
-                    fileUploader.textFieldGetText("heightTF")), 
+                    FileUtilities.writeProcSeparator(
+                        ((WebModuleImage) module).genRecord(destPath,
+                        fileUploader.textFieldGetText("widthTF"), 
+                        fileUploader.textFieldGetText("heightTF"))
+                    ),
                     "UTF-8");
                 break;
             default: 

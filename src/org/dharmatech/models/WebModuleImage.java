@@ -150,7 +150,7 @@ public class WebModuleImage extends WebModuleDefault{
             throw new NullPointerException("Null height");
         }
         String line = (new UploadedImage(destPath, width, height)).genRecord();
-        return FileUtilities.writeProcSeparator(line);
+        return line;
     }
     
     //Delete the module

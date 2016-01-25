@@ -29,6 +29,7 @@ public class GalleryUploader extends WebEditorGUIGeneric {
     private RegJButton moveDown;
     private JLabel statusLb;
     private JLabel uploadDestLb;
+    private RegJPanel previewPn;
     private JComboBox<Integer> nprCB;
     private JComboBox<String> descriptModeCB;
     
@@ -40,6 +41,7 @@ public class GalleryUploader extends WebEditorGUIGeneric {
         HashMap<String, JLabel> guLabelGroup = new HashMap<String, JLabel>();
         HashMap<String, JFrame> guFrameGroup = new HashMap<String, JFrame>();
         HashMap<String, RegJTable> guTableGroup = new HashMap<String, RegJTable>();
+        HashMap<String, RegJPanel> guPanelGroup = new HashMap<String, RegJPanel>();
         HashMap<String, JComboBox<Integer>> guComboBoxIntGroup = new HashMap<String, JComboBox<Integer>>();
         HashMap<String, JComboBox<String>> guComboBoxStrGroup = new HashMap<String, JComboBox<String>>();
 
@@ -58,6 +60,8 @@ public class GalleryUploader extends WebEditorGUIGeneric {
         
         guTableGroup.put("imagesTb".toLowerCase(), imagesTb);
 
+        guPanelGroup.put("previewPn".toLowerCase(), previewPn);
+
         guComboBoxIntGroup.put("nprCB".toLowerCase(), nprCB);
         
         guComboBoxStrGroup.put("descriptModeCB".toLowerCase(), descriptModeCB);
@@ -67,6 +71,7 @@ public class GalleryUploader extends WebEditorGUIGeneric {
         //initGUIObjsTextArea(guTextAreaGroup);
         initGUIObjsFrame(guFrameGroup);
         initGUIObjsTable(guTableGroup);
+        initGUIObjsPanel(guPanelGroup);
         initGUIObjsComboBoxInt(guComboBoxIntGroup);
         initGUIObjsComboBoxStr(guComboBoxStrGroup);
 
@@ -186,11 +191,21 @@ public class GalleryUploader extends WebEditorGUIGeneric {
         
         //Right: Preview
         //rightPreview.setPreferredSize(new Dimension(300, 400));
-        RegJPanel preview = new RegJPanel();
+        RegJPanel previewPn = new RegJPanel();
+        JScrollPane scrollPreview = new JScrollPane(previewPn);
+        scroll.setVerticalScrollBarPolicy(
+            ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scroll.setHorizontalScrollBarPolicy(
+            ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         rightPreview.setLayout(new BorderLayout());
-        rightPreview.add(BorderLayout.NORTH, preview);        
+        rightPreview.add(BorderLayout.CENTER, scrollPreview);
+        //rightPreview.setBorder(BorderFactory.createLineBorder(Color.gray));
+        previewPn.setLayout(new BoxLayout(previewPn, BoxLayout.Y_AXIS));
+        this.previewPn = previewPn;
+        
         //GUI
         uploaderGUI.setSize(700,500);
+        //previewPn.setPreferredSize(new Dimension(300,500));
         
     }
     

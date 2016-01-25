@@ -242,6 +242,9 @@ public class WebEditor extends WebEditorGUIGeneric{
         this.contentTA = contentTA;
         contentTA.setLineWrap(true);
         contentTA.setMargin(new Insets(10,10,10,10));
+        //Only to trigger the tooltip behavior!
+        //Otherwise, it seems the tooltip does not show up
+        contentTA.setToolTipText(""); 
         //content.getDocument().addDocumentListener(new EditDocumentListener());
         JScrollPane contentScroll = new JScrollPane(contentTA);
         contentScroll.setVerticalScrollBarPolicy(

@@ -342,6 +342,16 @@ public class FileUtilities {
     //Create a resized BufferedImage
     public static BufferedImage resizeImage(BufferedImage bufImg, String format, int widthMax, int heightMax) {
         checkFormat(format);
+        return resizeImageGeneric(bufImg, getRGBType(format), widthMax, heightMax);
+    }
+    //Create a resized BufferedImage; using BufferedImage.TYPE_INT_RGB always
+    public static BufferedImage resizeImage(BufferedImage bufImg, int widthMax, int heightMax) {
+        return resizeImageGeneric(bufImg, BufferedImage.TYPE_INT_RGB, widthMax, heightMax);
+    }
+    
+    //Create a resized BufferedImage
+    private static BufferedImage resizeImageGeneric(BufferedImage bufImg, int rgbType, int widthMax, int heightMax) {
+        //checkFormat(format);
         if (bufImg == null) {
             throw new NullPointerException("Null bufImg");
         }
@@ -365,7 +375,7 @@ public class FileUtilities {
             }
         }
         Image img = bufImg.getScaledInstance(width, height, Image.SCALE_DEFAULT);
-        BufferedImage newBufImg = new BufferedImage(width, height, getRGBType(format));
+        BufferedImage newBufImg = new BufferedImage(width, height, rgbType);
         Graphics2D g2d = newBufImg.createGraphics();
         g2d.drawImage(img, 0, 0, null);
         g2d.dispose();
@@ -510,19 +520,27 @@ public class FileUtilities {
         return success;
     }
     
-    public static String autoEllipsis(String text, int maxLen) {
+    public static String autoEllipsis(String text, int maxLen, boolean showEnd) {
         if (text == null) {
             throw new NullPointerException("Null text");
         }
         int textLen = text.length();
         if (textLen > maxLen) {
-            int firstHalf = Math.round((maxLen - 3) / 2);
-            return text.substring(0, firstHalf)
-                + "..."
-                + text.substring(firstHalf + textLen - maxLen + 3, textLen);
+            if (showEnd) {
+                int firstHalf = Math.round((maxLen - 3) / 2);
+                return text.substring(0, firstHalf)
+                    + "..."
+                    + text.substring(firstHalf + textLen - maxLen + 3, textLen);
+            } else {
+                return text.substring(0, maxLen - 3) + "...";
+            }
         } else {
             return text;
         }
+    }
+    
+    public static String autoEllipsis(String text, int maxLen) {
+        return autoEllipsis(text, maxLen, true);
     }
     public static String autoEllipsis(String text) {
         return autoEllipsis(text, 60);

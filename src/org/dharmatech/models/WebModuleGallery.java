@@ -36,6 +36,10 @@ public class WebModuleGallery extends WebModuleDefault{
         File f = new File(cfgPath);
         if (f.exists() && f.isFile()) {
             String text = FileUtilities.read(cfgPath, "UTF-8");
+            if (text == null) {
+                return;
+            }
+            text = FileUtilities.readProcSeparator(text);
             String[] lines = text.split("\n");
             this.data = new Object[lines.length][3];
             int i = 0;

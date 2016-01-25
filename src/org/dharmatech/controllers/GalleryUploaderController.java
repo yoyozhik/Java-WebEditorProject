@@ -22,6 +22,8 @@ import java.awt.event.*;
 import java.io.*;
 import java.util.*;
 import javax.swing.table.*;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 
 public class GalleryUploaderController {
     private GalleryUploader galleryUploader;
@@ -34,6 +36,8 @@ public class GalleryUploaderController {
     //parameters
     private final String cfgPath;
     private final String uploadDir;
+    private final int previewWidth = 100;
+    private final int previewHeight = 100;
     //private String websiteDir;
     private DesignInfoSet designInfoSet;
        
@@ -73,9 +77,9 @@ public class GalleryUploaderController {
             throw new NullPointerException("Null galleryUploader");
         }
         basicSetup();
+        //galleryUploader.framePack("uploaderGUI");
         init();
         galleryUploader.frameSetVisible("uploaderGUI", true);       
-        galleryUploader.framePack("uploaderGUI");
     }
 
     //Basic setup
@@ -101,6 +105,13 @@ public class GalleryUploaderController {
         galleryUploader.labelSetToolTipText("uploadDestLb", uploadDir);
         galleryUploader.comboBoxIntRemoveAllItems("nprCB");
         galleryUploader.comboBoxStrRemoveAllItems("descriptModeCB");
+        
+        //Initialize preview
+        npr = module.getMaxNpr();
+        initPreview(npr);
+        galleryUploader.framePack("uploaderGUI");
+
+        //npr & descriptMode
         for (int i = 1; i <= module.getMaxNpr(); i++) {
             galleryUploader.comboBoxIntAddItem("nprCB", i);
         }
@@ -142,6 +153,7 @@ public class GalleryUploaderController {
             //(galleryUploader.tableGetColumn("imagesTb", colNames[0])).setPreferredWidth(
             //    Math.round(galleryUploader.tableGetPreferredSize("imagesTb").width * 0.05f));
             //table.getColumn(colNames[0]).setMaxWidth(20);
+            initPreview(model.getRowCount());
         }
         galleryUploader.tableSetRowSelectionInterval("imagesTb", 0, 0); //Need to select something! (it has at least 1 empty row)
     }
@@ -202,6 +214,8 @@ public class GalleryUploaderController {
                 }
                 galleryUploader.tableSetRowSelectionInterval("imagesTb", currentLoc + 1, currentLoc + 1);
             }
+            initPreview((galleryUploader.tableGetModel("imagesTb"))
+                .getRowCount());
             galleryUploader.buttonSetEnabled("upload", true);
         }        
     }
@@ -226,7 +240,9 @@ public class GalleryUploaderController {
                 galleryUploader.tableSetRowSelectionInterval("imagesTb", currentLoc, currentLoc);
             } else if (tbModel.getRowCount() > 0) {
                 galleryUploader.tableSetRowSelectionInterval("imagesTb", currentLoc - 1, currentLoc - 1);
-            } 
+            }
+            initPreview((galleryUploader.tableGetModel("imagesTb"))
+                .getRowCount());            
         }
     }
     private class MoveActionListener implements ActionListener {
@@ -247,6 +263,8 @@ public class GalleryUploaderController {
             boolean swapped = swapRow(currentLoc, currentLoc + direction);
             if (swapped) {
                 galleryUploader.tableSetRowSelectionInterval("imagesTb", currentLoc + direction, currentLoc + direction);
+                initPreview((galleryUploader.tableGetModel("imagesTb"))
+                .getRowCount());
             }
         }
     }
@@ -330,7 +348,10 @@ public class GalleryUploaderController {
         }
         module.upload(data);
         FileUtilities.write(module.getCfgPath(), 
-            module.genRecord(data, npr, descriptMode), "UTF-8");
+            FileUtilities.writeProcSeparator(
+                module.genRecord(data, npr, descriptMode)
+            ),
+            "UTF-8");
         galleryUploader.labelSetText("statusLb", 
             "Status: uploading/saving done." + " Total " + iR + " items.");
     }
@@ -345,6 +366,8 @@ public class GalleryUploaderController {
         public void actionPerformed (ActionEvent event) {
             int sel = galleryUploader.comboBoxIntGetSelectedIndex("nprCB");
             setNpr(sel + 1);
+            initPreview((galleryUploader.tableGetModel("imagesTb"))
+                .getRowCount());
         }
     }
     //JCombobox Listener
@@ -362,4 +385,38 @@ public class GalleryUploaderController {
         this.descriptMode = descriptMode;
     } 
 
+    private void initPreview(int count) {
+        galleryUploader.panelRemoveAllItems("previewPn");
+        int rows = (int) Math.ceil(1.0 * count / npr);
+        for (int r = 0; r < rows; r++) {
+            RegJPanel rowPn = new RegJPanel();
+            rowPn.setLayout(new FlowLayout(FlowLayout.LEADING));
+            galleryUploader.panelAddComponent("previewPn", rowPn);
+            for (int i = 0; i < npr; i++) {
+                int index = r * npr + i;
+                JLabel picLabel = loadPreviewImage(index);
+                picLabel.setPreferredSize(new Dimension(previewWidth, previewHeight));
+                rowPn.add(picLabel);
+            }
+        }
+    }
+    private JLabel loadPreviewImage(int index) {
+        TableModel tbModel = galleryUploader.tableGetModel("imagesTb");
+        try {
+            JLabel previewLb = new JLabel(
+                new ImageIcon(
+                    FileUtilities.resizeImage(
+                        ImageIO.read(
+                            new File(
+                                tbModel.getValueAt(index, 0).toString())),
+                        previewWidth, previewHeight)
+                )
+            );
+            previewLb.setToolTipText(tbModel.getValueAt(index, 1).toString());
+            return previewLb;
+        } catch (Exception ex) {
+            return new JLabel("");
+        }        
+    }  
+    
 }

@@ -256,6 +256,10 @@ public abstract class WebEditorGUIGeneric {
     public void textAreaAddDocumentListener(String id, DocumentListener listener) {
         ((RegJTextArea) getObj(id, GUIObjTypeEnum.TEXTAREA)).getDocument().addDocumentListener(listener);
     }
+    //Set info //Customized info
+    public void textAreaSetInfo(String id, DesignInfoSet designInfoSet, String pageName) {
+        ((RegJTextArea) getObj(id, GUIObjTypeEnum.TEXTAREA)).setInfo(designInfoSet, pageName);
+    }
     
     //TextField
     //Get text in textField
@@ -402,10 +406,16 @@ public abstract class WebEditorGUIGeneric {
         p.setLayout(new BoxLayout(p, style));
     }
     //Add Component
-    public void panelAddObj(String id, Component cObj) {
+    public void panelAddComponent(String id, Component cObj) {
         ((RegJPanel) getObj(id, GUIObjTypeEnum.PANEL)).add(cObj);
     }
-   
+    //Set RemoveAll
+    public void panelRemoveAllItems(String id) {
+        RegJPanel p = ((RegJPanel) getObj(id, GUIObjTypeEnum.PANEL));
+        p.removeAll();
+        p.revalidate();
+        p.repaint();
+    }
     //Frame
     //SetVisible
     public void frameSetVisible(String id, boolean visible) {
