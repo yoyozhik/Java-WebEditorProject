@@ -32,7 +32,8 @@ public class GalleryUploaderController {
     private int descriptMode;
     private String pageName;
     private JFileChooser fileOpen;
-
+    //private HashMap<String, Integer> origFileNames; //Used to avoid name collision
+    
     //parameters
     private final String cfgPath;
     private final String uploadDir;
@@ -106,6 +107,7 @@ public class GalleryUploaderController {
         galleryUploader.comboBoxIntRemoveAllItems("nprCB");
         galleryUploader.comboBoxStrRemoveAllItems("descriptModeCB");
         
+        //origFileNames = new HashMap<String, Integer>();
         //Initialize preview
         npr = module.getMaxNpr();
         initPreview(npr);
@@ -154,6 +156,13 @@ public class GalleryUploaderController {
             //    Math.round(galleryUploader.tableGetPreferredSize("imagesTb").width * 0.05f));
             //table.getColumn(colNames[0]).setMaxWidth(20);
             initPreview(model.getRowCount());
+            //Init fileNames
+            for (int i = 0; i < data.length; i++) {
+                if (data[i][1].equals("")) {
+                    continue;
+                }
+                //origFileNames.put(data[i][1].trim().toLowerCase(), new Integer(i));
+            }
         }
         galleryUploader.tableSetRowSelectionInterval("imagesTb", 0, 0); //Need to select something! (it has at least 1 empty row)
     }
@@ -346,6 +355,14 @@ public class GalleryUploaderController {
             data[k][0] = "";
             //System.out.println(k + " - " + data[k][0]);
         }
+        int nameCollisionRow = getNameCollision(data);
+        if (nameCollisionRow >= 0) {
+            galleryUploader.labelSetText("statusLb", 
+                "Status: Name collision detected for item #" + nameCollisionRow 
+                + "! uploading/saving NOT done.");
+            galleryUploader.tableSetRowSelectionInterval("imagesTb", nameCollisionRow, nameCollisionRow);
+            return;
+        }
         module.upload(data);
         FileUtilities.write(module.getCfgPath(), 
             FileUtilities.writeProcSeparator(
@@ -354,6 +371,20 @@ public class GalleryUploaderController {
             "UTF-8");
         galleryUploader.labelSetText("statusLb", 
             "Status: uploading/saving done." + " Total " + iR + " items.");
+    }
+    
+    private int getNameCollision(Object[][] data) {
+        HashSet<String> nameSet = new HashSet<String>();
+        for (int i = 0; i < data.length; i++) {
+            if (data[i][0].equals("")) {
+                continue;
+            }
+            if (nameSet.contains(((String) data[i][1]).trim().toLowerCase())) {
+                return i;
+            }
+            nameSet.add(((String) data[i][1]).trim().toLowerCase());
+        }
+        return -1;
     }
     //Exit
     private void close() {
