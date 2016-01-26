@@ -33,6 +33,7 @@ To Do (list to increase):
 3. Implement module renumbering. Now module id's are numbered incrementally and cannot be manually changed (usually you don't have such a need).
 4. Implement drag-n-drop.
 5. Make navigation more elegant and support multi-level navigation.
+6. Make the mobile pages more elegant.
 
 Current Platform: Windows
 
@@ -42,3 +43,14 @@ Usage Instruction (Windows)
 - Location: src\
 - Compile: javac org\dharmatech\views\*.java org\dharmatech\controllers\*.java org\dharmatech\models\*.java org\dharmatech\utilities\*.java -d {your class dir}
 - Execute: java org.dharmatech.controllers.WebEditorController
+
+
+
+Q & A:
+
+1. Why are you supporting Windows instead of Mac/Linux as a starting point?
+A: Considering the major customers - who have little knowledge about coding, they are mainly Windows and Mac users, not Linux users. And nowadays Windows is still the mainstream by looking at the market share, compared to Mac.
+We definitely will extend the support over to Mac and Linux, but Windows is a good starting point to make sure the majority can be benefited asap.
+
+2. Is the deliverable mobile-friendly?
+A: Yes. Although the mobile version of the deliverable is not that beautiful yet, it has been verified that the deliverable is considered mobile-friendly by Google Search, and therefore will receive the ranking bonus for mobile-friendly sites.
