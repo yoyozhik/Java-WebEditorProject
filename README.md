@@ -2,6 +2,12 @@
 
 Java Project: WebEditor featuring convenient maintenance and clean file hierarchy
 
+Code structure: Model-View-Controller
+- models: model classes for data 
+- views: GUI classes
+- controllers: controllers for GUI and model communication
+- utilities: common utilities, including file and unicode utilities
+
 Deliverable:
 
 A package of website files that can be uploaded to any hosting service via FTP directly
@@ -33,9 +39,6 @@ Current Platform: Windows
 Mac/Linux support: Under Testing
 
 Usage Instruction (Windows)
-
-  Location: src\
-  
-  Compile: javac org\dharmatech\views\*.java org\dharmatech\controllers\*.java org\dharmatech\models\*.java org\dharmatech\utilities\*.java -d {your class dir}
-  
-  Execute: java org.dharmatech.controllers.WebEditorController
+- Location: src\
+- Compile: javac org\dharmatech\views\*.java org\dharmatech\controllers\*.java org\dharmatech\models\*.java org\dharmatech\utilities\*.java -d {your class dir}
+- Execute: java org.dharmatech.controllers.WebEditorController
