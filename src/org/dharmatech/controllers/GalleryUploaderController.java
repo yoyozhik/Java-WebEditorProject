@@ -167,6 +167,29 @@ public class GalleryUploaderController {
         galleryUploader.tableSetRowSelectionInterval("imagesTb", 0, 0); //Need to select something! (it has at least 1 empty row)
     }
     
+    private void reload() {
+        //Load images        
+        WebModuleGallery module = new WebModuleGallery(new DesignInfoSet(designInfoSet), pageName, id);
+        File f = new File(cfgPath);
+        if (f.exists() && f.isFile()) {
+            Object[][] data = module.getData();
+            RegTableModel model = new RegTableModel(data, colNames);
+            galleryUploader.tableSetModel("imagesTb", model);
+            //(galleryUploader.tableGetColumn("imagesTb", colNames[0])).setPreferredWidth(
+            //    Math.round(galleryUploader.tableGetPreferredSize("imagesTb").width * 0.05f));
+            //table.getColumn(colNames[0]).setMaxWidth(20);
+            initPreview(model.getRowCount());
+            //Init fileNames
+            for (int i = 0; i < data.length; i++) {
+                if (data[i][1].equals("")) {
+                    continue;
+                }
+                //origFileNames.put(data[i][1].trim().toLowerCase(), new Integer(i));
+            }
+        }
+        galleryUploader.tableSetRowSelectionInterval("imagesTb", 0, 0); //Need to select something! (it has at least 1 empty row)
+    }
+    
     private class GalleryWindowListener extends WindowAdapter {
         @Override
         public void windowClosing(WindowEvent we) {
@@ -355,12 +378,8 @@ public class GalleryUploaderController {
             data[k][0] = "";
             //System.out.println(k + " - " + data[k][0]);
         }
-        int nameCollisionRow = getNameCollision(data);
+        int nameCollisionRow = getNameCollision(data, module.getUploadDir());
         if (nameCollisionRow >= 0) {
-            galleryUploader.labelSetText("statusLb", 
-                "Status: Name collision detected for item #" + nameCollisionRow 
-                + "! uploading/saving NOT done.");
-            galleryUploader.tableSetRowSelectionInterval("imagesTb", nameCollisionRow, nameCollisionRow);
             return;
         }
         module.upload(data);
@@ -371,18 +390,64 @@ public class GalleryUploaderController {
             "UTF-8");
         galleryUploader.labelSetText("statusLb", 
             "Status: uploading/saving done." + " Total " + iR + " items.");
+        reload();
     }
     
-    private int getNameCollision(Object[][] data) {
-        HashSet<String> nameSet = new HashSet<String>();
+    private int getNameCollision(Object[][] data, String uploadDir) {
+        //Check whether new names collide with each other
+        HashMap<File, Integer> newFileMap = new HashMap<File, Integer>();
         for (int i = 0; i < data.length; i++) {
             if (data[i][0].equals("")) {
                 continue;
             }
-            if (nameSet.contains(((String) data[i][1]).trim().toLowerCase())) {
+            String name = ((String) data[i][1]).trim();
+            File newF = new File(uploadDir + File.separator + name);
+            if (newFileMap.get(newF) != null) {
+                galleryUploader.labelSetText("statusLb", 
+                    "Status: New Name collision detected for " + name 
+                    + "! Uploading/saving NOT performed.");
+                galleryUploader.tableSetRowSelectionInterval("imagesTb", 
+                    i, i);
+                galleryUploader.tableAddRowSelectionInterval("imagesTb", 
+                    newFileMap.get(newF), newFileMap.get(newF));
                 return i;
             }
-            nameSet.add(((String) data[i][1]).trim().toLowerCase());
+            newFileMap.put(newF, new Integer(i));
+        }
+        //Check whether old files collide with each other (conservative)
+        HashMap<File, Integer> oldFileMap = new HashMap<File, Integer>();
+        for (int i = 0; i < data.length; i++) {
+            if (data[i][0].equals("")) {
+                continue;
+            }
+            File oldF = new File(((String) data[i][0]).trim());
+            String name = oldF.getName();
+            if (oldFileMap.get(oldF) != null) {
+                galleryUploader.labelSetText("statusLb", 
+                    "Status: Original Name collision detected for " + name 
+                    + "! Uploading/saving NOT performed.");
+                galleryUploader.tableSetRowSelectionInterval("imagesTb", 
+                    i, i);
+                galleryUploader.tableAddRowSelectionInterval("imagesTb", 
+                    oldFileMap.get(oldF), oldFileMap.get(oldF));
+                return i;
+            }
+            oldFileMap.put(oldF, i);
+        }
+        //Check whether new names collide with others' old names 
+        for (File fileKey : newFileMap.keySet()) {
+            if (oldFileMap.get(fileKey) == null 
+                || oldFileMap.get(fileKey) <= newFileMap.get(fileKey)) {
+                continue;
+            }
+            galleryUploader.labelSetText("statusLb", 
+                "Status: Name collision detected for " + fileKey.getName() 
+                + "! Uploading/saving NOT performed.");
+            galleryUploader.tableSetRowSelectionInterval("imagesTb", 
+                oldFileMap.get(fileKey), oldFileMap.get(fileKey));
+            galleryUploader.tableAddRowSelectionInterval("imagesTb", 
+                newFileMap.get(fileKey), newFileMap.get(fileKey));
+            return oldFileMap.get(fileKey);
         }
         return -1;
     }

@@ -391,8 +391,14 @@ public abstract class WebEditorGUIGeneric {
     public void tableSetRowSelectionInterval(String id, int start, int end) {
         ((RegJTable) getObj(id, GUIObjTypeEnum.TABLE)).setRowSelectionInterval(start, end);
     }
+    public void tableAddRowSelectionInterval(String id, int start, int end) {
+        ((RegJTable) getObj(id, GUIObjTypeEnum.TABLE)).addRowSelectionInterval(start, end);
+    }
     public void tableSetColumnSelectionInterval(String id, int start, int end) {
         ((RegJTable) getObj(id, GUIObjTypeEnum.TABLE)).setColumnSelectionInterval(start, end);
+    }
+    public void tableAddColumnSelectionInterval(String id, int start, int end) {
+        ((RegJTable) getObj(id, GUIObjTypeEnum.TABLE)).addColumnSelectionInterval(start, end);
     }
     
     //Panel
