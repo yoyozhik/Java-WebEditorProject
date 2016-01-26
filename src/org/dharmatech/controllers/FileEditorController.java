@@ -82,6 +82,7 @@ public class FileEditorController {
         basicSetup();
         init();
         fileEditor.frameSetVisible("editorGUI", true);
+        fileEditor.textAreaEnableUndo("contentTA");
         fileEditor.textAreaSetCaretPosition("contentTA", 0);
         fileEditor.textAreaRequestFocus("contentTA");
     }

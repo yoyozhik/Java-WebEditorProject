@@ -9,6 +9,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.regex.*;
+import javax.swing.event.*;
+import javax.swing.undo.UndoManager;
+import javax.swing.text.Document;
+import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.CannotRedoException;
 
 public class RegJTextArea extends JTextArea {
     private DesignInfoSet designInfoSet;
@@ -92,6 +97,54 @@ public class RegJTextArea extends JTextArea {
             }
         }
         return null;
+    }
+    
+    //Enable undo function
+    //Code adapted from exampledepot.com code example
+    public void enableUndo() {
+        // Listener
+        Document doc = getDocument();
+        final UndoManager undo = new UndoManager();
+        // Listen for undo and redo events
+        doc.addUndoableEditListener(new UndoableEditListener() {
+            public void undoableEditHappened(UndoableEditEvent evt) {
+                undo.addEdit(evt.getEdit());
+            }
+        });
+
+        // Undo
+        // Create an undo action and add it to the text component
+        getActionMap().put("Undo",
+            new AbstractAction("Undo") {
+                public void actionPerformed(ActionEvent evt) {
+                    try {
+                        if (undo.canUndo()) {
+                            undo.undo();
+                        }
+                    } catch (CannotUndoException e) {
+                    }
+                }
+            }
+        );
+        // Bind the undo action to ctl-Z
+        getInputMap().put(KeyStroke.getKeyStroke("control Z"), "Undo");
+
+        // Redo
+        // Create a redo action and add it to the text component
+        getActionMap().put("Redo",
+            new AbstractAction("Redo") {
+                public void actionPerformed(ActionEvent evt) {
+                    try {
+                        if (undo.canRedo()) {
+                            undo.redo();
+                        }
+                    } catch (CannotRedoException e) {
+                    }
+                }
+            }
+        );
+        // Bind the redo action to ctl-Y
+        getInputMap().put(KeyStroke.getKeyStroke("control Y"), "Redo");
     }
 }
     

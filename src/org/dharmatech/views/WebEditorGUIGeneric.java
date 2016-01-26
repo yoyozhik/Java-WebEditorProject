@@ -260,6 +260,10 @@ public abstract class WebEditorGUIGeneric {
     public void textAreaSetInfo(String id, DesignInfoSet designInfoSet, String pageName) {
         ((RegJTextArea) getObj(id, GUIObjTypeEnum.TEXTAREA)).setInfo(designInfoSet, pageName);
     }
+    //Enable undo manager 
+    public void textAreaEnableUndo(String id) {
+        ((RegJTextArea) getObj(id, GUIObjTypeEnum.TEXTAREA)).enableUndo();
+    }
     
     //TextField
     //Get text in textField

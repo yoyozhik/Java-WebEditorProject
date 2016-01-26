@@ -124,6 +124,7 @@ public class WebEditorController {
         webEditor.labelSetText("statusLb", "Initializing...");
         webEditor.labelSetText("rootDirLb", "Root Dir Unspecified");
         webEditor.textAreaSetText("contentTA", "");
+        webEditor.textAreaEnableUndo("contentTA");
         
         webEditor.buttonSetEnabled("rename", false);
         
