@@ -30,9 +30,6 @@ Current Platform: Windows
 Mac/Linux support: Under Testing
 
 Usage Instruction (Windows)
-
-Location: src\
-
-Compile: javac views\*.java controllers\*.java models\*.java utilities\*.java -d {your class dir}
-
-Execute: java controllers.WebEditorController
+  Location: src\
+  Compile: javac views\*.java controllers\*.java models\*.java utilities\*.java -d {your class dir}
+  Execute: java controllers.WebEditorController
