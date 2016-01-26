@@ -36,6 +36,6 @@ Usage Instruction (Windows)
 
   Location: src\
   
-  Compile: javac views\*.java controllers\*.java models\*.java utilities\*.java -d {your class dir}
+  Compile: javac org\dharmatech\views\*.java org\dharmatech\controllers\*.java org\dharmatech\models\*.java org\dharmatech\utilities\*.java -d {your class dir}
   
-  Execute: java controllers.WebEditorController
+  Execute: java org.dharmatech.controllers.WebEditorController
