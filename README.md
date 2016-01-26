@@ -51,6 +51,7 @@ Q & A:
 1. Why are you supporting Windows instead of Mac/Linux as a starting point?
  - A: Considering the major customers - who have little knowledge about coding, they are mainly Windows and Mac users, not Linux users. And nowadays Windows is still the mainstream by looking at the market share, compared to Mac.
 We definitely will extend the support over to Mac and Linux, but Windows is a good starting point to make sure the majority can be benefited asap.
+Actually, with Java implementation, it is by nature cross-platform. And this is also why we chose Java. The only thing remaining under testing is the difference in file systems, e.g. how a file path is represented and how two filepaths are considered referring to the same file.
 
 2. Is the deliverable mobile-friendly?
  - A: Yes. Although the mobile version of the deliverable is not that beautiful yet, it has been verified that the deliverable is considered mobile-friendly by Google Search, and therefore will receive the ranking bonus for mobile-friendly sites.
