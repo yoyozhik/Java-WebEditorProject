@@ -2,6 +2,8 @@
 
 Java Project: WebEditor featuring convenient maintenance and clean file hierarchy
 
+==================== Project Brief ========================================
+
 Code structure: Model-View-Controller
 - models: model classes for data 
 - views: GUI classes
@@ -35,6 +37,8 @@ To Do (list to increase):
 5. Make navigation more elegant and support multi-level navigation.
 6. Make the mobile pages more elegant.
 
+==================== Project Usage Instruction ========================================
+
 Current Platform: Windows
 
 Mac/Linux support: Under Testing
@@ -45,8 +49,7 @@ Usage Instruction (Windows)
 - Execute: java org.dharmatech.controllers.WebEditorController
 
 
-
-Q & A:
+==================== Q & A ========================================
 
 Q: Why are you supporting Windows instead of Mac/Linux as a starting point?
 
