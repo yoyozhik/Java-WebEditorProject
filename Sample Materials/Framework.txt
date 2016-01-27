@@ -1,0 +1,104 @@
+﻿<script>
+var sY = window.screen.width;
+var maxWidth = 699; // max width of mobile devices
+function displaySite()
+{
+ if (sessionStorage.getItem("mobile_redirect") != "no") {
+  if (sY <= maxWidth) {
+   sessionStorage.setItem("mobile_redirect", "no");
+   window.location.replace("/mobile/Index.php");
+  }
+ }
+}
+window.onload = function() {
+ displaySite();
+}
+</script>
+
+<!DOCTYPE html>
+<html>
+
+<head>
+		<title><PAGETITLE></title>
+		<meta property='og:title' content='<PAGETITLE>' />
+		<meta name="description" content="" />
+<meta property='og:description' content='' />
+<meta name="keywords" content="" />
+<meta property='og:image' content='' />
+<meta property='og:url' content='<WEBURL>/<PAGENAME>.html' />
+<meta property="fb:admins" content="726611516" />
+<meta property="og:type"   content="website" /> 
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<script src="styles/lightbox/js/jquery-1.11.0.min.js"></script>
+<script src="styles/lightbox/js/lightbox.min.js"></script>
+<link rel="stylesheet" href="styles/lightbox/css/lightbox.css" />
+
+<link rel="stylesheet" type="text/css" href="./styles/stylesheet.css" />
+<link rel="canonical" href="<WEBURL>" />
+<style>
+
+
+</style>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/Product">
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.3";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+<div class="maindiv">
+<table class="mainframe">
+<tr>
+ <td class="logo"><img itemprop="image" src="logo_goes_here" alt="logo" class="logo" ></td>
+ <td><table><tr>
+ <td class="MBAname">SAMPLE WEBSITE</td>
+ <td class="social">
+ <a href="" target="_blank"><img src="<IMAGESRESOURCESREL>/facebook.jpg" class="icon"></a>
+ <a href="" target="_blank"><img src="<IMAGESRESOURCESREL>/gplus.jpg" class="icon" ></a>
+ <a href="mailto:sample@gmail.com"><img src="<IMAGESRESOURCESREL>/email.jpg" class="icon" ></a>
+ </td>
+ </tr></table></td>
+ </tr>
+ <tr>
+ <td></td>
+ <td class="dummy" style="background-image:url(<IMAGESRESOURCESREL>/frameline.jpg);background-repeat:no-repeat"></td>
+ </tr>
+<tr>
+ <td class="navigation">
+  <table class="nav">
+  <<<###_NAVIGATION_###>>> 
+<tr><td style="padding-top:10px"><div class="fb-like" data-href="<WEBURL>" data-width="100" data-layout="button_count" data-action="like" data-show-faces="true" data-share="true"></div></td></tr>
+<tr><td class="dummy"></td></tr>
+<tr><td class="dummy"></td></tr>
+<tr><td>
+<table><tr><td class="contact-us-nav"><a href="mailto:sample@gmail.com"><img src="<IMAGESRESOURCESREL>/email.jpg" class="icon" ></a></td>
+<td  class="contact-us-nav"><a href="mailto:sample@gmail.com">Contact Us<br/>聯繫我們</a></td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><td class="contact-us-nav"><a target="_blank" href="mailto:sample@gmail.com?subject=Email Subscription"><img src="<IMAGESRESOURCESREL>/email.jpg" class="icon" ></a></td>
+<td  class="contact-us-nav"><a target="_blank" href="mailto:sample@gmail.com?subject=Email Subscription 加入郵件組">Subscribe<br/>加入郵件組</a></td></tr>
+</table>
+</td></tr>
+
+  </table>
+ </td>
+ <td class="maintext" style="background-image:url(<IMAGESRESOURCESREL>/framelineV.jpg);background-repeat:repeat-y">
+ <<<###_MAINTEXT_###>>> 
+ </td>
+</tr>
+<tr><td class="dummy"></td><td></td></tr>
+<tr><td class="dummy"></td><td></td></tr>
+</table>
+</div>
+
+</body>
+
+</html>
