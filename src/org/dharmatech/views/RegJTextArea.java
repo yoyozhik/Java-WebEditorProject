@@ -46,7 +46,7 @@ public class RegJTextArea extends JTextArea {
         int tryI = 0;
         String type = "";
         int id = 0;
-        ContentParser cP = new ContentParser(designInfoSet);
+        //ContentParser cP = new ContentParser(designInfoSet);
         while (tryI < maxTry) {
             int start = location - tryI * 5;
             int end = location + tryI * 5;
@@ -56,7 +56,7 @@ public class RegJTextArea extends JTextArea {
             if (end > content.length()) {
                 end = content.length();
             }
-            Matcher m = cP.patternTypeIdFind(content.substring(start, end));
+            Matcher m = ContentParser.patternTypeIdFind(content.substring(start, end));
             if (m.find()) {
                 type = m.group(1);
                 id = Integer.parseInt(m.group(2));

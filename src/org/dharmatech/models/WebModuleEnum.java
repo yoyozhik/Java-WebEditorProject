@@ -3,7 +3,10 @@
    Version date: 2016 Jan 15
 */
 /* API
-
+public enum WebModuleEnum {
+    WebModuleEnum(String val) {}
+    public String getValue() {}
+}
 */
 package org.dharmatech.models;
 
@@ -20,6 +23,7 @@ public enum WebModuleEnum {
     WebModuleEnum(String val) {
         this.val = val;
     }
+    //Get the String value of the enum
     public String getValue() {
         return (val);
     }

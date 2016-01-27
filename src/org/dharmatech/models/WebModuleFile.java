@@ -1,12 +1,39 @@
-/* File Utilities 
-*/
+/* File module */
+
 /* Author: Wei Zhang
-   Latest Version: 2016 Jan 18
+   Latest Version: 2016 Jan 23
 */
 /*API
 class WebModuleFile {
-    public WebModuleFile()
+    public WebModuleFile(DesignInfoSet designInfoSet, String pageName, int id) {}
+    public void setDesignInfoSet(DesignInfoSet designInfoSet) {}
+    public DesignInfoSet getDesignInfoSet() {}
+    public String getDesignSetItem(String key) {}
+    public void setPageName(String pageName) {}
+    public void setID(int id) {}
+    public WebModuleEnum getType() {}
+    public String getPageName() {}
+    public int getID() {}
+    public String getCfgPath() {}
+    public String getFileExtension(String fileStr) {}
+    public String getTarget() {}
+    public String getTargetWithMarker() {}
+    public void save(String cfgText) {}
+    public String retrieveContent() {}
+    public String getResourceData() {}
+    public String genRecord(String text) {}
+    public boolean delete() {}
+    public void startEditor() {}
+    public String getMarkedContent() {}    
     
+    public String getUploadDir() {}
+    public String getSourcePath() {}
+    public String getFileName() {}
+    public String upload(String sourcePath, String destPath) {}
+    protected String getFullUploadedPath(String uploadedPath) {}
+
+    public static void main(String[] args) {}
+
 }
 */
 
@@ -28,7 +55,7 @@ public class WebModuleFile extends WebModuleDefault{
         super(designInfoSet, pageName, id);
         this.typeEnum = WebModuleEnum.FILE;
     }
-    
+    //get upload dir
     public String getUploadDir() {
         String uploadsResourcesRel = getDesignSetItem("uploadsResourcesRel");
         if (uploadsResourcesRel == null) {
@@ -47,7 +74,7 @@ public class WebModuleFile extends WebModuleDefault{
         if (line != null) { //Already uploaded before
             line = FileUtilities.readProcSeparator(line);
             line = getFullUploadedPath(line.trim());
-            UploadedFile upFile = new UploadedFile(line);
+            UploadedFile upFile = new UploadedFile(line, getDesignSetItem("uploadsResourcesRel"));
             sourcePath = upFile.getFilePath(); 
             fileName = upFile.getFileName();
         }
@@ -84,7 +111,8 @@ public class WebModuleFile extends WebModuleDefault{
             throw new NullPointerException("Null imagesResourcesRel");
         }
         String webDir = rootDir + File.separator + websiteDirRel;
-        UploadedFile upFile = new UploadedFile(webDir + File.separator + detail);
+        UploadedFile upFile = new UploadedFile(webDir + File.separator + detail, 
+            getDesignSetItem("uploadsResourcesRel"));
         detail = "<div>\n<table><tr><td><a href=\"" + upFile.getWebFilePath()
             + "\"><img width=\"40\" height=\"40\" "
             + "src=\"" + imagesResourcesRel + "/" 
@@ -121,7 +149,7 @@ public class WebModuleFile extends WebModuleDefault{
     
     @Override
     public String genRecord(String destPath) {
-        return (new UploadedFile(destPath)).genRecord();
+        return (new UploadedFile(destPath, getDesignSetItem("uploadsResourcesRel"))).genRecord();
     }
     
     //Delete the module
@@ -173,4 +201,28 @@ public class WebModuleFile extends WebModuleDefault{
         }
         return uploadedPath;
     } 
+    
+    public static void main(String[] args) {
+        WebModuleFile module = new WebModuleFile(new DesignInfoSet(new HashMap<String, String>()),
+            "index", 2);
+        System.out.println(module.getID());
+        System.out.println(module.getPageName());
+        module.setPageName("contact");
+        module.setID(3);
+        System.out.println(module.getType());
+        System.out.println(module.getPageName());
+        System.out.println(module.getCfgPath());
+        System.out.println(module.getFileExtension("Test.pdf"));
+        System.out.println(module.getTarget());
+        System.out.println(module.getTargetWithMarker());
+        System.out.println(module.retrieveContent());
+        System.out.println(module.getResourceData());
+        System.out.println(module.genRecord("test Text for Record"));
+        System.out.println(module.getMarkedContent());
+        System.out.println(module.getUploadDir());
+        System.out.println(module.getSourcePath());
+        System.out.println(module.getFileName());
+        System.out.println(module.getFullUploadedPath(module.getSourcePath()));
+        module.startEditor();
+    }    
 }

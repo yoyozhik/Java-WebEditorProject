@@ -68,7 +68,7 @@ public abstract class WebEditorGUIGeneric {
     public void initGUIObjsComboBoxInt(HashMap<String, JComboBox<Integer>> comboBoxIntGroup) {
         this.comboBoxIntGroup = comboBoxIntGroup;
     }
-
+    //Add objs to groups
     public void addGUIObjsButton(String str, RegJButton obj) {
         buttonGroup.put(str, obj);
     }
@@ -201,7 +201,10 @@ public abstract class WebEditorGUIGeneric {
     public void buttonSetEnabled(String id, boolean enabled) {
         ((RegJButton) getObj(id, GUIObjTypeEnum.BUTTON)).setEnabled(enabled);
     }
-    
+    //Button request focus
+    public void buttonRequestFocus(String id) {
+        ((RegJButton) getObj(id, GUIObjTypeEnum.BUTTON)).requestFocus();
+    }    
     //MenuItem
     //AddActionListeners
     public void menuItemAddActionListener(String id, ActionListener listener) {
@@ -264,6 +267,10 @@ public abstract class WebEditorGUIGeneric {
     public void textAreaEnableUndo(String id) {
         ((RegJTextArea) getObj(id, GUIObjTypeEnum.TEXTAREA)).enableUndo();
     }
+    //Set line wrap
+    public void textAreaSetLineWrap(String id, boolean wrap) {
+        ((RegJTextArea) getObj(id, GUIObjTypeEnum.TEXTAREA)).setLineWrap(wrap);
+    }
     
     //TextField
     //Get text in textField
@@ -277,6 +284,10 @@ public abstract class WebEditorGUIGeneric {
     //Set tooltip in textField
     public void textFieldSetToolTipText(String id, String s) {
         ((JTextField) getObj(id, GUIObjTypeEnum.TEXTFIELD)).setToolTipText(s);
+    }
+    //textField request focus
+    public void textFieldRequestFocus(String id) {
+        ((JTextField) getObj(id, GUIObjTypeEnum.TEXTFIELD)).requestFocus();
     }
     //Add document listener
     public void textFieldAddDocumentListener(String id, DocumentListener listener) {
@@ -365,7 +376,10 @@ public abstract class WebEditorGUIGeneric {
     public void labelSetToolTipText(String id, String s) {
         ((JLabel) getObj(id, GUIObjTypeEnum.LABEL)).setToolTipText(s);
     }    
-    
+    //Set label foreground color
+    public void labelSetForeground(String id, Color color) {
+        ((JLabel) getObj(id, GUIObjTypeEnum.LABEL)).setForeground(color);
+    }    
     //Table
     //Set table model
     public void tableSetModel(String id, RegTableModel model) {
@@ -446,6 +460,11 @@ public abstract class WebEditorGUIGeneric {
     //frame pack
     public void framePack(String id) {
         ((JFrame) getObj(id, GUIObjTypeEnum.FRAME)).pack();
+    }
+    //frame to front
+    public void frameToFront(String id) {
+        ((JFrame) getObj(id, GUIObjTypeEnum.FRAME)).toFront();
+        ((JFrame) getObj(id, GUIObjTypeEnum.FRAME)).repaint();
     }
     //frame open file dialog
     public JFileChooser frameFileChooser(String id, Integer mode, FileNameExtensionFilter filter) {

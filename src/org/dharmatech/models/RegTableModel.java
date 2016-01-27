@@ -1,5 +1,14 @@
 /* Table Model */
-
+/* Author: Wei Zhang
+   Version date: 2016 Jan 15
+*/
+/* API
+public class RegTableModel extends DefaultTableModel {
+    public RegTableModel(Object[][] data, String[] columnNames) {}
+    public Class getColumnClass(int c) {}
+    //Others inheriting from DefaultTableModel
+}
+*/
 package org.dharmatech.models;
 
 import javax.swing.event.*;
@@ -18,6 +27,7 @@ public class RegTableModel extends DefaultTableModel {
         //this.columnNames = columnNames;
     }
     
+    //Override to get the actual class instead of all Strings
     @Override
     public Class getColumnClass(int c) {
         return getValueAt(0, c).getClass();

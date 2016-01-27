@@ -1,12 +1,30 @@
-/* File Utilities 
-*/
+/* Default module*/
 /* Author: Wei Zhang
    Latest Version: 2016 Jan 18
 */
 /*API
 class WebModuleDefault {
-    public WebModuleDefault()
-    
+    public WebModuleDefault(DesignInfoSet designInfoSet, String pageName, int id) {}
+    public void setDesignInfoSet(DesignInfoSet designInfoSet) {}
+    public DesignInfoSet getDesignInfoSet() {}
+    public String getDesignSetItem(String key) {}
+    public void setPageName(String pageName) {}
+    public void setID(int id) {}
+    public WebModuleEnum getType() {}
+    public String getPageName() {}
+    public int getID() {}
+    public String getCfgPath() {}
+    public String getFileExtension(String fileStr) {}
+    public String getTarget() {}
+    public String getTargetWithMarker() {}
+    public void save(String cfgText) {}
+    public String retrieveContent() {}
+    public String getResourceData() {}
+    public String genRecord(String text) {}
+    public boolean delete() {}
+    public void startEditor() {}
+    public String getMarkedContent() {}    
+    public static void main(String[] args) {}
 }
 */
 
@@ -35,30 +53,39 @@ public class WebModuleDefault {
         this.pageName = pageName;
         this.id = id;
     }
+    //Set DesignInfoSet without reinstantialting
     public void setDesignInfoSet(DesignInfoSet designInfoSet) {
         this.designInfoSet = new DesignInfoSet(designInfoSet);
     }
+    //Get a copy of DesignInfoSet to pass to another constructor
     public DesignInfoSet getDesignInfoSet() {
         return new DesignInfoSet(designInfoSet);
     }
+    //Get design info
     public String getDesignSetItem(String key) {
         return designInfoSet.getDesignInfo(key);
     }
+    //Set page name
     public void setPageName(String pageName) {
         this.pageName = pageName;
     }
+    //set id
     public void setID(int id) {
         this.id = id;
     }
+    //get type
     public WebModuleEnum getType() {
         return typeEnum;
     }
+    //get page name
     public String getPageName() {
         return pageName;
     }
+    //get id
     public int getID() {
         return id;
     }
+    //get cfg path of this module
     public String getCfgPath() {
         String rootDir = getDesignSetItem("rootDir");
         String resourceDirRel = getDesignSetItem("resourceDirRel");
@@ -79,6 +106,7 @@ public class WebModuleDefault {
         }
         return cfgPath;
     }
+    //get file extension
     public String getFileExtension(String fileStr) {
         String extension = "";
         int i = fileStr.lastIndexOf('.');
@@ -87,9 +115,11 @@ public class WebModuleDefault {
         }
         return extension;
     }
+    //get target string for this module
     public String getTarget() {
         return typeEnum.getValue() + "_" + id;
     }
+    //get target string with markdown for this module
     public String getTargetWithMarker() {
         return "<<<###_" + getTarget() + "_###>>>";
     }
@@ -103,6 +133,7 @@ public class WebModuleDefault {
         String detail = getCfgPath();
         return detail;
     }
+    //get resource data according to type and cfg content
     public String getResourceData() {
         //Only fetch content if file exists; otherwise use empty ""
         String cfgPath = getCfgPath();
@@ -127,6 +158,7 @@ public class WebModuleDefault {
         return FileUtilities.deleteFile(cfgPath);
     }
     
+    //Start editor
     public void startEditor() {
         FileEditorController fileEditorController = null;
         try {
@@ -151,5 +183,25 @@ public class WebModuleDefault {
     }
     public String getMarkedContent() {
         return insertMarker(retrieveContent(), getTarget());
-    }    
+    }
+    
+    public static void main(String[] args) {
+        WebModuleDefault module = new WebModuleDefault(new DesignInfoSet(new HashMap<String, String>()),
+            "index", 2);
+        System.out.println(module.getID());
+        System.out.println(module.getPageName());
+        module.setPageName("contact");
+        module.setID(3);
+        System.out.println(module.getType());
+        System.out.println(module.getPageName());
+        System.out.println(module.getCfgPath());
+        System.out.println(module.getFileExtension("test.code"));
+        System.out.println(module.getTarget());
+        System.out.println(module.getTargetWithMarker());
+        System.out.println(module.retrieveContent());
+        System.out.println(module.getResourceData());
+        System.out.println(module.genRecord("Test Text for module"));
+        System.out.println(module.getMarkedContent());
+        module.startEditor();
+    }
 }

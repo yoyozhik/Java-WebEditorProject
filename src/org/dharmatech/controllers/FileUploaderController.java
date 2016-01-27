@@ -2,11 +2,13 @@
 /* Author: Wei Zhang
    Latest Version: 2016 Jan 17
 */
+/* The controller of GUI FileUploader */
+/* Handles both file and image uploading */
 /*API
 public class fileUploaderController {
-    public fileUploaderController(String cfgPath, String uploadDir)
-    public void start()
-    public static void main(String[] args)
+    public fileUploaderController(String cfgPath, String uploadDir) {}
+    public void start() {}
+    public static void main(String[] args) {}
 }
 */
 package org.dharmatech.controllers;
@@ -24,7 +26,7 @@ import java.util.*;
 import java.util.regex.*;
 
 public class FileUploaderController {
-    private FileUploader fileUploader;
+    private FileUploader fileUploader; //GUI
     private DesignInfoSet designInfoSet;
     private WebModuleEnum typeEnum;
     private int id;
@@ -35,6 +37,9 @@ public class FileUploaderController {
     private String pageName;
     private JFileChooser fileOpen;
 
+    //Constructor with a designInfoSet object,
+    //module configuration path, file uploading destination dir,
+    //page name, module id, and module type
     public FileUploaderController(DesignInfoSet designInfoSet, 
         String cfgPath, String uploadDir, String pageName, int id, 
         WebModuleEnum typeEnum) throws IOException {
@@ -241,7 +246,7 @@ public class FileUploaderController {
     public static void main(String[] args) {
         FileUploaderController fUp = null;
         try {
-            fUp = new FileUploaderController(new DesignInfoSet(new HashMap<String, String>()), "a", "b", "", 1, WebModuleEnum.FILE);
+            fUp = new FileUploaderController(new DesignInfoSet(new HashMap<String, String>()), "cfg.path", "uploads", "index", 1, WebModuleEnum.FILE);
         } catch(Exception ex) {
             ex.printStackTrace();
         }

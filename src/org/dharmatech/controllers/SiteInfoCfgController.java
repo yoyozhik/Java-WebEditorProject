@@ -1,8 +1,14 @@
-/* Site Info Setup */
+/* controller for SiteInfoCfg */
+/* Author: Wei Zhang
+   Latest Version: 2016 Jan 20
+*/
+/* The controller of GUI SiteCfg */
+/* Handles site info, including website name and url */
 /* API
 public class SiteInfoCfgController {
-    public SiteInfoCfgController(String urlPath, String namePath)
-    public void start()
+    public SiteInfoCfgController(String urlPath, String namePath) {}
+    public void start() {}
+    public static void main(String[] args) {}
 }
 */
 package org.dharmatech.controllers;
@@ -16,11 +22,13 @@ import java.awt.event.*;
 import java.io.*;
 
 public class SiteInfoCfgController {
-    private SiteInfoCfg siteInfoCfg;
+    private SiteInfoCfg siteInfoCfg; //GUI
     private final String urlPath;
     private final String namePath;
     private Command reloadMain;
     
+    //constructor with the url cfg file path, name cfg file path
+    //and a Command object with a WebEditor reload method packed
     public SiteInfoCfgController(String urlPath, String namePath, Command reloadMain) throws IOException {
         if (urlPath == null) {
             throw new NullPointerException("Null urlPath");
@@ -61,7 +69,7 @@ public class SiteInfoCfgController {
         siteInfoCfg.textFieldAddDocumentListener("nameTF", new EditDocumentListener());
         siteInfoCfg.frameAddWindowListener("editorGUI", new SiteInfoWindowListener());
     }
-    
+    //Initialize
     private void init() {
         File urlFile = new File(urlPath);
         if (urlFile != null && urlFile.isFile()) {
@@ -85,7 +93,7 @@ public class SiteInfoCfgController {
             }
         }
     }
-
+    //Window Listener
     private class SiteInfoWindowListener extends WindowAdapter {
         @Override
         public void windowClosing(WindowEvent we) {
@@ -94,21 +102,23 @@ public class SiteInfoCfgController {
             //}
         }
     }
-    
-    private class SaveActionListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            save();
-            reloadMain.execute(null);
-        }
-    }
-    
+    //Exit Listener
     private class ExitActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             exit();
         }
     }
+    //Save Listener
+    private class SaveActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            save();
+            reloadMain.execute(null);
+            siteInfoCfg.frameToFront("editorGUI");
+        }
+    }
+    //Edit Listener
     private class EditDocumentListener implements DocumentListener {
         @Override
         public void changedUpdate(DocumentEvent event) {
@@ -121,13 +131,13 @@ public class SiteInfoCfgController {
             siteInfoCfg.buttonSetEnabled("save", true);
         }
     }
-
+    //Save the url and website name
     private void save() {
         save(urlPath, "urlTF");
         save(namePath, "nameTF");
         siteInfoCfg.buttonSetEnabled("save", false);
     }
-    
+    //save textfield content into file
     private void save(String filePath, String fileTFID) {
         File f = new File(filePath);
         if (f.exists() && !f.isFile()) {
@@ -142,9 +152,19 @@ public class SiteInfoCfgController {
         String info = siteInfoCfg.textFieldGetText(fileTFID);
         FileUtilities.write(filePath, info, "UTF-8");
     }
-    
+    //Exit
     private void exit() {
         siteInfoCfg.frameDispatchEvent("editorGUI", WindowEvent.WINDOW_CLOSING);
     }
     
+    public static void main(String[] args) {
+        /*SiteInfoCfgController scc = null;
+        try {
+            scc = new SiteInfoCfgController("url.path", "name.path", null);
+        } catch(Exception ex) {
+            ex.printStackTrace();
+        }
+        scc.start();
+        */
+    }
 }

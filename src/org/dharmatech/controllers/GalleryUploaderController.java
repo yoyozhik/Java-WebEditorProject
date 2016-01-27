@@ -2,11 +2,13 @@
 /* Author: Wei Zhang
    Latest Version: 2016 Jan 20
 */
+/* The controller of GUI GalleryUploader */
+/* Handles gallery uploading */
 /*API
 public class GalleryUploaderController {
-    public GalleryUploaderController(String filePath)
-    public void start()
-    public static void main(String[] args)
+    public GalleryUploaderController(String filePath) {}
+    public void start() {}
+    public static void main(String[] args) {}
 }
 */
 package org.dharmatech.controllers;
@@ -26,13 +28,13 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 
 public class GalleryUploaderController {
-    private GalleryUploader galleryUploader;
+    private GalleryUploader galleryUploader; //GUI
     private int id;
     private int npr;
     private int descriptMode;
     private String pageName;
-    private JFileChooser fileOpen;
-    //private HashMap<String, Integer> origFileNames; //Used to avoid name collision
+    //Use one JFileChooser object so that it remembers last location
+    private JFileChooser fileOpen; 
     
     //parameters
     private final String cfgPath;
@@ -44,6 +46,10 @@ public class GalleryUploaderController {
        
     private final String[] colNames = {"SourceFile", "File Name", "Description"};
 
+    //Constructor with a designInfoSet object,
+    //module configuration path, file uploading destination dir,
+    //page name, and module id
+    //No module type needed because it is only for Gallery module
     public GalleryUploaderController(DesignInfoSet designInfoSet, 
         String cfgPath, String uploadDir, String pageName, int id)
         throws IOException {
@@ -111,6 +117,8 @@ public class GalleryUploaderController {
         //Initialize preview
         npr = module.getMaxNpr();
         initPreview(npr);
+        //We need to pack the GUI here instead of after init()
+        //Otherwise the preview panel can be shrunk to the default 4-image view
         galleryUploader.framePack("uploaderGUI");
 
         //npr & descriptMode
@@ -164,9 +172,13 @@ public class GalleryUploaderController {
                 //origFileNames.put(data[i][1].trim().toLowerCase(), new Integer(i));
             }
         }
-        galleryUploader.tableSetRowSelectionInterval("imagesTb", 0, 0); //Need to select something! (it has at least 1 empty row)
+        //Better to select something! (it has at least 1 empty row as guaranteed when initializing)
+        //Not really needed anymore because the non-selection is now checked by actions
+        //But selecting the first row is preferred in visual
+        galleryUploader.tableSetRowSelectionInterval("imagesTb", 0, 0); 
     }
     
+    //helper: reload the file paths and preview panel
     private void reload() {
         //Load images        
         WebModuleGallery module = new WebModuleGallery(new DesignInfoSet(designInfoSet), pageName, id);
@@ -190,6 +202,8 @@ public class GalleryUploaderController {
         galleryUploader.tableSetRowSelectionInterval("imagesTb", 0, 0); //Need to select something! (it has at least 1 empty row)
     }
     
+    //Listeners
+    //Window listener
     private class GalleryWindowListener extends WindowAdapter {
         @Override
         public void windowClosing(WindowEvent we) {
@@ -198,17 +212,19 @@ public class GalleryUploaderController {
             //}
         }
     }
-    //Listeners
-    private class UploadActionListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent event) {
-            upload();
-        }
-    }
+    //Exit Listener
     private class ExitActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent event) {
             close();
+        }
+    }
+    
+    //Upload Listener
+    private class UploadActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent event) {
+            upload();
         }
     }
     
@@ -244,7 +260,8 @@ public class GalleryUploaderController {
                 } else {
                     insertRow(currentLoc, newRow);
                 }
-                galleryUploader.tableSetRowSelectionInterval("imagesTb", currentLoc + 1, currentLoc + 1);
+                galleryUploader.tableSetRowSelectionInterval("imagesTb", 
+                    currentLoc + 1, currentLoc + 1);
             }
             initPreview((galleryUploader.tableGetModel("imagesTb"))
                 .getRowCount());
@@ -259,6 +276,7 @@ public class GalleryUploaderController {
             insertRow(currentLoc);
         }
     }*/
+    //Delete Listener
     private class DeleteActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent event) {
@@ -269,21 +287,24 @@ public class GalleryUploaderController {
             deleteRow(currentLoc);
             RegTableModel tbModel = (RegTableModel) galleryUploader.tableGetModel("imagesTb");
             if (tbModel.getRowCount() > currentLoc) {
-                galleryUploader.tableSetRowSelectionInterval("imagesTb", currentLoc, currentLoc);
+                galleryUploader.tableSetRowSelectionInterval("imagesTb",
+                    currentLoc, currentLoc);
             } else if (tbModel.getRowCount() > 0) {
-                galleryUploader.tableSetRowSelectionInterval("imagesTb", currentLoc - 1, currentLoc - 1);
+                galleryUploader.tableSetRowSelectionInterval("imagesTb",
+                    currentLoc - 1, currentLoc - 1);
             }
             initPreview((galleryUploader.tableGetModel("imagesTb"))
                 .getRowCount());            
         }
     }
+    //Move Listener: up or down
     private class MoveActionListener implements ActionListener {
         private int direction = -1; //-1: up; +1: down
         public MoveActionListener(int direction) {
             if (direction <= 0) { //Handle no-selection case
                 this.direction = -1;  //up
             } else {
-                this.direction = 1;
+                this.direction = 1; //down
             }
         }
         @Override
@@ -294,13 +315,16 @@ public class GalleryUploaderController {
             }
             boolean swapped = swapRow(currentLoc, currentLoc + direction);
             if (swapped) {
-                galleryUploader.tableSetRowSelectionInterval("imagesTb", currentLoc + direction, currentLoc + direction);
+                //Update selected row to allow continuous moving 
+                //without reselecting the target
+                galleryUploader.tableSetRowSelectionInterval("imagesTb"
+                    , currentLoc + direction, currentLoc + direction);
                 initPreview((galleryUploader.tableGetModel("imagesTb"))
                 .getRowCount());
             }
         }
     }
-    
+    //Insert a row: once you add images, you need to insert rows
     private void insertRow(int i, Object[] newRow) {
         RegTableModel tbModel = (RegTableModel) galleryUploader.tableGetModel("imagesTb");
         if (i < 0 
@@ -311,9 +335,10 @@ public class GalleryUploaderController {
                 + tbModel.getRowCount() + "-1");
         }
         tbModel.insertRow(i, newRow);
-        galleryUploader.labelSetText("statusLb", "Status: Inserted row at location " + i + ".");
+        galleryUploader.labelSetText("statusLb", 
+            "Status: Inserted row at location " + i + ".");
     }
-    
+    //Delete a row
     private void deleteRow(int i) {
         RegTableModel tbModel = (RegTableModel) galleryUploader.tableGetModel("imagesTb");
         if (i < 0 || i >= tbModel.getRowCount()) {
@@ -324,7 +349,7 @@ public class GalleryUploaderController {
         tbModel.removeRow(i);
         galleryUploader.labelSetText("statusLb", "Status: Removed row " + i + ".");
     }
-    
+    //Swap a row: moving is essentially swapping
     private boolean swapRow(int i, int j) {
        RegTableModel tbModel = (RegTableModel) galleryUploader.tableGetModel("imagesTb");
        if (i < 0 || i >= tbModel.getRowCount()) {
@@ -337,7 +362,8 @@ public class GalleryUploaderController {
             return false;
         }
         tbModel.moveRow(i, i, j);
-        galleryUploader.labelSetText("statusLb", "Status: Swapped rows " + i + " and " + j + ".");
+        galleryUploader.labelSetText("statusLb", 
+            "Status: Swapped rows " + i + " and " + j + ".");
         return true;
     }
     //private class EditDocumentListener implements DocumentListener {
@@ -352,10 +378,13 @@ public class GalleryUploaderController {
     //        save.setEnabled(true);
     //    }
     //}
+    
     //upload
     private void upload() {
         galleryUploader.labelSetText("statusLb", "Status: uploading/saving...");
-        WebModuleGallery module = new WebModuleGallery(new DesignInfoSet(designInfoSet), pageName, id);
+        //Collect data
+        WebModuleGallery module = new WebModuleGallery(new DesignInfoSet(designInfoSet),
+            pageName, id);
         TableModel tbModel = galleryUploader.tableGetModel("imagesTb");
         int rCount = tbModel.getRowCount();
         int cCount = tbModel.getColumnCount();
@@ -378,11 +407,14 @@ public class GalleryUploaderController {
             data[k][0] = "";
             //System.out.println(k + " - " + data[k][0]);
         }
-        int nameCollisionRow = getNameCollision(data, module.getUploadDir());
-        if (nameCollisionRow >= 0) {
+        //Check name collision
+        boolean nameCollisionRow = getNameCollision(data, module.getUploadDir());
+        if (nameCollisionRow) {
             return;
         }
+        //Upload
         module.upload(data);
+        //Write cfg
         FileUtilities.write(module.getCfgPath(), 
             FileUtilities.writeProcSeparator(
                 module.genRecord(data, npr, descriptMode)
@@ -390,10 +422,11 @@ public class GalleryUploaderController {
             "UTF-8");
         galleryUploader.labelSetText("statusLb", 
             "Status: uploading/saving done." + " Total " + iR + " items.");
+        //File names may have changed: need to reload
         reload();
     }
-    
-    private int getNameCollision(Object[][] data, String uploadDir) {
+    //Check name collision
+    private boolean getNameCollision(Object[][] data, String uploadDir) {
         //Check whether new names collide with each other
         HashMap<File, Integer> newFileMap = new HashMap<File, Integer>();
         for (int i = 0; i < data.length; i++) {
@@ -404,17 +437,19 @@ public class GalleryUploaderController {
             File newF = new File(uploadDir + File.separator + name);
             if (newFileMap.get(newF) != null) {
                 galleryUploader.labelSetText("statusLb", 
-                    "Status: New Name collision detected for " + name 
-                    + "! Uploading/saving NOT performed.");
+                    "<html><font color=\"red\">Status: Name collision detected for " + name 
+                    + "!</font></html>");
                 galleryUploader.tableSetRowSelectionInterval("imagesTb", 
                     i, i);
                 galleryUploader.tableAddRowSelectionInterval("imagesTb", 
                     newFileMap.get(newF), newFileMap.get(newF));
-                return i;
+                return true;
             }
             newFileMap.put(newF, new Integer(i));
         }
         //Check whether old files collide with each other (conservative)
+        //Only happens if one wants to upload one file to two locations
+        //Usually won't happen; disallowing this makes the 3rd check easier
         HashMap<File, Integer> oldFileMap = new HashMap<File, Integer>();
         for (int i = 0; i < data.length; i++) {
             if (data[i][0].equals("")) {
@@ -424,39 +459,45 @@ public class GalleryUploaderController {
             String name = oldF.getName();
             if (oldFileMap.get(oldF) != null) {
                 galleryUploader.labelSetText("statusLb", 
-                    "Status: Original Name collision detected for " + name 
-                    + "! Uploading/saving NOT performed.");
+                    "<html><font color=\"red\">Status: Name collision detected for " + name 
+                    + "!</font></html>");
                 galleryUploader.tableSetRowSelectionInterval("imagesTb", 
                     i, i);
                 galleryUploader.tableAddRowSelectionInterval("imagesTb", 
                     oldFileMap.get(oldF), oldFileMap.get(oldF));
-                return i;
+                return true;
             }
             oldFileMap.put(oldF, i);
         }
         //Check whether new names collide with others' old names 
         for (File fileKey : newFileMap.keySet()) {
+            //Collision mainly happens to the cases where we have source files 
+            //that are previously uploaded (no issue if the files come from outside)
+            //It is safe if the new path does not equal to the original path of another uploaded file
+            //It is also safe if the original uploaded file is renamed before getting 
+            //collided with a new path (which means no collision actually)
             if (oldFileMap.get(fileKey) == null 
                 || oldFileMap.get(fileKey) <= newFileMap.get(fileKey)) {
+                //a "<=" is sufficient because its renaming part is guaranteed by the 2nd check
                 continue;
             }
             galleryUploader.labelSetText("statusLb", 
-                "Status: Name collision detected for " + fileKey.getName() 
-                + "! Uploading/saving NOT performed.");
+                "<html><font color=\"red\">Status: Name collision detected for " + fileKey.getName() 
+                + "!</font></html>");
             galleryUploader.tableSetRowSelectionInterval("imagesTb", 
                 oldFileMap.get(fileKey), oldFileMap.get(fileKey));
             galleryUploader.tableAddRowSelectionInterval("imagesTb", 
                 newFileMap.get(fileKey), newFileMap.get(fileKey));
-            return oldFileMap.get(fileKey);
+            return true;
         }
-        return -1;
+        return false;
     }
     //Exit
     private void close() {
         galleryUploader.frameDispatchEvent("uploaderGUI", WindowEvent.WINDOW_CLOSING);
     }
     
-    //JCombobox Listener
+    //JCombobox Listener for npr
     private class NPRBoxListener implements ActionListener {
         @Override
         public void actionPerformed (ActionEvent event) {
@@ -466,7 +507,7 @@ public class GalleryUploaderController {
                 .getRowCount());
         }
     }
-    //JCombobox Listener
+    //JCombobox Listener for descriptMode
     private class ModeBoxListener implements ActionListener {
         @Override
         public void actionPerformed (ActionEvent event) {
@@ -474,13 +515,15 @@ public class GalleryUploaderController {
             setDescriptMode(sel + 1);
         }
     }
+    //Set npr
     private void setNpr(int npr) {
         this.npr = npr;
     }
+    //Set descriptMode
     private void setDescriptMode(int descriptMode) {
         this.descriptMode = descriptMode;
     } 
-
+    //Initial the preview panel with images or empty labels
     private void initPreview(int count) {
         galleryUploader.panelRemoveAllItems("previewPn");
         int rows = (int) Math.ceil(1.0 * count / npr);
@@ -496,6 +539,7 @@ public class GalleryUploaderController {
             }
         }
     }
+    //load images as previews into the labels, or return an empty label
     private JLabel loadPreviewImage(int index) {
         TableModel tbModel = galleryUploader.tableGetModel("imagesTb");
         try {
@@ -515,4 +559,13 @@ public class GalleryUploaderController {
         }        
     }  
     
+    public static void main(String[] args) {
+        GalleryUploaderController gUp = null;
+        try {
+            gUp = new GalleryUploaderController(new DesignInfoSet(new HashMap<String, String>()), "cfg.path", "uploads", "index", 1);
+        } catch(Exception ex) {
+            ex.printStackTrace();
+        }
+        gUp.start();
+    }
 }

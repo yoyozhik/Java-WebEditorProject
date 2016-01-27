@@ -5,8 +5,38 @@
 */
 /*API
 class WebModuleGallery {
-    public WebModuleGallery()
+    public WebModuleGallery(DesignInfoSet designInfoSet, String pageName, int id) {}
+    public void setDesignInfoSet(DesignInfoSet designInfoSet) {}
+    public DesignInfoSet getDesignInfoSet() {}
+    public String getDesignSetItem(String key) {}
+    public void setPageName(String pageName) {}
+    public void setID(int id) {}
+    public WebModuleEnum getType() {}
+    public String getPageName() {}
+    public int getID() {}
+    public String getCfgPath() {}
+    public String getFileExtension(String fileStr) {}
+    public String getTarget() {}
+    public String getTargetWithMarker() {}
+    public void save(String cfgText) {}
+    public String retrieveContent() {}
+    public String getResourceData() {}
+    public String genRecord(String text) {}
+    public boolean delete() {}
+    public void startEditor() {}
+    public String getMarkedContent() {}    
     
+    public String getUploadDir() {}
+    public String getNpr() {}
+    public String getDescriptMode() {}
+    public int getMaxNpr() {}
+    public int getDefNpr() {}
+    public String[] getDescriptModeStrs() {}
+    public int getDefDescriptMode() {}
+    public String upload(Object[][] data) {}
+    public String genRecord(Object[][] data, int npr, int descriptMode) {}
+    protected String getFullUploadedPath(String uploadedPath) {}   
+    public static void main(String[] args) {}
 }
 */
 
@@ -44,7 +74,7 @@ public class WebModuleGallery extends WebModuleDefault{
             this.data = new Object[lines.length][3];
             int i = 0;
             for (String ln : lines) {
-                //Use advanced splitting to handle , in "", like "hello, world"
+                //Use advanced splitting to handle comma(,) in "", like "hello, world"
                 String[] pars = FileUtilities.recordSplit(ln);  
                 if (pars.length >= 5) {
                     //System.out.println(line);
@@ -190,7 +220,8 @@ public class WebModuleGallery extends WebModuleDefault{
             String uploadPath = getUploadDir() + File.separator + data[i][1].toString();
             //Upload
             FileUtilities.uploadFile(sourcePath, uploadPath);
-            UploadedImage upImage = new UploadedImage(uploadPath, "", "");
+            UploadedImage upImage = new UploadedImage(uploadPath, "", "",
+                getDesignSetItem("uploadsResourcesRel"));
             //Create resized images and upload
             File s = new File(uploadPath);
             //Thumb
@@ -217,7 +248,8 @@ public class WebModuleGallery extends WebModuleDefault{
             }
             String sourcePath = getFullUploadedPath(data[i][0].toString());
             String uploadPath = getUploadDir() + File.separator + data[i][1].toString();
-            UploadedImage upImage = new UploadedImage(uploadPath, "", "");
+            UploadedImage upImage = new UploadedImage(uploadPath, "", "",
+                getDesignSetItem("uploadsResourcesRel"));
             //Add to record
             textSB.append("\"");
             textSB.append(upImage.getRelativeFilePath());
@@ -287,4 +319,28 @@ public class WebModuleGallery extends WebModuleDefault{
         }
         return uploadedPath;
     } 
+
+        
+    public static void main(String[] args) {
+        WebModuleGallery module = new WebModuleGallery(new DesignInfoSet(new HashMap<String, String>()),
+            "index", 2);
+        System.out.println(module.getID());
+        System.out.println(module.getPageName());
+        module.setPageName("contact");
+        module.setID(3);
+        System.out.println(module.getType());
+        System.out.println(module.getPageName());
+        System.out.println(module.getCfgPath());
+        System.out.println(module.getTarget());
+        System.out.println(module.getTargetWithMarker());
+        System.out.println(module.retrieveContent());
+        System.out.println(module.getResourceData());
+        System.out.println(module.getMarkedContent());
+        System.out.println(module.getUploadDir());
+        System.out.println(module.getDescriptMode());
+        System.out.println(module.getMaxNpr());
+        System.out.println(module.getDefNpr());
+        System.out.println(module.getDefDescriptMode());
+        module.startEditor();
+    }
 }

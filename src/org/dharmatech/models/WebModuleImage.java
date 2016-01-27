@@ -1,12 +1,37 @@
 /* Image Utilities 
 */
 /* Author: Wei Zhang
-   Latest Version: 2016 Jan 18
+   Latest Version: 2016 Jan 23
 */
 /*API
 class WebModuleImage {
-    public WebModuleImage()
+    public WebModuleImage(DesignInfoSet designInfoSet, String pageName, int id) {}
+    public void setDesignInfoSet(DesignInfoSet designInfoSet) {}
+    public DesignInfoSet getDesignInfoSet() {}
+    public String getDesignSetItem(String key) {}
+    public void setPageName(String pageName) {}
+    public void setID(int id) {}
+    public WebModuleEnum getType() {}
+    public String getPageName() {}
+    public int getID() {}
+    public String getCfgPath() {}
+    public String getFileExtension(String fileStr) {}
+    public String getTarget() {}
+    public String getTargetWithMarker() {}
+    public void save(String cfgText) {}
+    public String retrieveContent() {}
+    public String getResourceData() {}
+    public String genRecord(String text) {}
+    public boolean delete() {}
+    public void startEditor() {}
+    public String getMarkedContent() {}    
     
+    public String getUploadDir() {}
+    public String getSourcePath() {}
+    public String getFileName() {}
+    public String upload(String sourcePath, String destPath) {}
+    protected String getFullUploadedPath(String uploadedPath) {}
+    public static void main(String[] args) {}
 }
 */
 
@@ -50,7 +75,8 @@ public class WebModuleImage extends WebModuleDefault{
         if (line != null) { //Already uploaded before
             line = FileUtilities.readProcSeparator(line);
             line = getFullUploadedPath(line.trim());
-            UploadedImage upFile = new UploadedImage(line);
+            UploadedImage upFile = new UploadedImage(line, 
+                getDesignSetItem("uploadsResourcesRel"));
             sourcePath = upFile.getFilePath(); 
             width = upFile.getWidth();
             height = upFile.getHeight();            
@@ -96,7 +122,8 @@ public class WebModuleImage extends WebModuleDefault{
             throw new NullPointerException("Null websiteDirRel");
         }
         String webDir = rootDir + File.separator + websiteDirRel;
-        UploadedImage upImage = new UploadedImage(webDir + File.separator + detail);
+        UploadedImage upImage = new UploadedImage(webDir + File.separator + detail,
+            getDesignSetItem("uploadsResourcesRel"));
         Pattern p = Pattern.compile("[^ ]");
         String imageWidthStr = "";
         if (p.matcher(upImage.getWidth()).find()) {
@@ -149,7 +176,8 @@ public class WebModuleImage extends WebModuleDefault{
         if (height == null) {
             throw new NullPointerException("Null height");
         }
-        String line = (new UploadedImage(destPath, width, height)).genRecord();
+        String line = (new UploadedImage(destPath, width, height,
+            getDesignSetItem("uploadsResourcesRel"))).genRecord();
         return line;
     }
     
@@ -201,5 +229,29 @@ public class WebModuleImage extends WebModuleDefault{
             return rootDir + File.separator + websiteDirRel + File.separator + uploadedPath;
         }
         return uploadedPath;
+    } 
+    
+    public static void main(String[] args) {
+        WebModuleImage module = new WebModuleImage(new DesignInfoSet(new HashMap<String, String>()),
+            "index", 2);
+        System.out.println(module.getID());
+        System.out.println(module.getPageName());
+        module.setPageName("contact");
+        module.setID(3);
+        System.out.println(module.getType());
+        System.out.println(module.getPageName());
+        System.out.println(module.getCfgPath());
+        System.out.println(module.getFileExtension("Test.png"));
+        System.out.println(module.getTarget());
+        System.out.println(module.getTargetWithMarker());
+        System.out.println(module.retrieveContent());
+        System.out.println(module.getResourceData());
+        System.out.println(module.genRecord("test Text for Record"));
+        System.out.println(module.getMarkedContent());
+        System.out.println(module.getUploadDir());
+        System.out.println(module.getSourcePath());
+        System.out.println(module.getFileName());
+        System.out.println(module.getFullUploadedPath(module.getSourcePath()));
+        module.startEditor();
     } 
 }

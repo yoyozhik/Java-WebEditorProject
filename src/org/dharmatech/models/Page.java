@@ -1,12 +1,36 @@
 /* Page Class */
 /* Author: Wei Zhang
-   Version date: 2016 Jan 15
+   Version date: 2016 Jan 26
+*/
+/* The Page class handles everything of the Page itself
+including:
+1. Get page information
+2. Save page content
+3. Compile page
 */
 /* API
 public class Page {
-    public Page(String rootDir, String websiteDirRel, String resourceDirRel, 
-        int level, String pageName, String pageTitle, boolean displayInNav) 
-    
+    public Page(int level, String pageName, String pageTitle, boolean displayInNav,
+        DesignInfoSet designInfoSet ) {}
+    public void setDesignInfoSet(DesignInfoSet designInfoSet) {}
+    public int getLevel() {}
+    public String getPageName() {}
+    public String getPageTitle() {}
+    public boolean getDisplayInNav() {}
+    public String getCfgName() {}
+    public String getMainFullFileName() {}
+    public String getMobileFullFileName() {}
+    public String getDesignSetItem(String key) {}
+    public String getMainFullFilePath() {}
+    public String getMobileFullFilePath() {}
+    public String getUploadParent() {}
+    public String getResourceCfgDir() {}
+    public String getResourcePageCfg() {} 
+    public String getPageContent() {}
+    public void save(String text) {}
+    public void compileMain(String frameworkPath) {}
+    public void compileMobile(String frameworkPath) {}
+    public static void main(String[] args) {} 
 }
 */
 
@@ -24,7 +48,9 @@ public class Page {
     private String pageTitle;
     private boolean displayInNav;
     private DesignInfoSet designInfoSet;
-    
+    //constructor taking the page elements: level, pagename, pagetitle, 
+    //and whether to display in navigation
+    //plus DesignInfoSet for compiling usage
     public Page(int level, String pageName, String pageTitle, boolean displayInNav,
         DesignInfoSet designInfoSet ) {
         if (designInfoSet == null) {
@@ -42,33 +68,43 @@ public class Page {
         this.pageTitle = pageTitle;
         this.displayInNav = displayInNav;
     }
+    //Reset design info without reinstantialting
     public void setDesignInfoSet(DesignInfoSet designInfoSet) {
         this.designInfoSet = new DesignInfoSet(designInfoSet);
     }
+    //get page level
     public int getLevel() {
         return(level);
     }
+    //get page name
     public String getPageName() {
         return(pageName);
     }
+    //get page title
     public String getPageTitle() {
         return(pageTitle);
     }
+    //get page info on whether to display in navigation
     public boolean getDisplayInNav() {
         return(displayInNav);
     }
+    //get page cfg path
     public String getCfgName() {
         return(pageName + ".txt");
     }
+    //get the full name of the main webpage
     public String getMainFullFileName() {
         return(pageName + ".html");
     }
+    //get the full name of the mobile webpage
     public String getMobileFullFileName() {
         return(pageName + ".php");
     }
+    //get the target design info
     public String getDesignSetItem(String key) {
         return designInfoSet.getDesignInfo(key);
     }
+    //get the full path of the main webpage
     public String getMainFullFilePath() {
         String rootDir = getDesignSetItem("rootDir");
         String websiteDirRel = getDesignSetItem("websiteDirRel");
@@ -83,6 +119,7 @@ public class Page {
             + getMainFullFileName();
         return(path);
     }
+    //get the full path of the mobile webpage
     public String getMobileFullFilePath() {
         String rootDir = getDesignSetItem("rootDir");
         String websiteDirRel = getDesignSetItem("websiteDirRel");
@@ -139,7 +176,8 @@ public class Page {
             + getCfgName();
         return(path);
     }
-    
+    //Get the page content in the page configurations 
+    //(the text displayed in the main textarea in WebEditor)
     public String getPageContent() {
         return(FileUtilities.read(getResourcePageCfg(), "UTF-8"));
     }
@@ -163,11 +201,12 @@ public class Page {
         //    throw new NullPointerException("Null navText");
         //}
         String compiledText = compilePageNoNav(frameworkPath);
-        ContentParser cP = new ContentParser(new DesignInfoSet(designInfoSet));
+        //ContentParser cP = new ContentParser(new DesignInfoSet(designInfoSet));
         //Navigation
         //String navTextMod = compileNavMainPage(navText);
         String navTextMod = compileNavMainPage();
-        compiledText = cP.compileNavigation(compiledText, navTextMod);
+        //compiledText = cP.compileNavigation(compiledText, navTextMod);
+        compiledText = compileNavigation(compiledText, navTextMod);
         //Handle markers
         compiledText = handleMarkers(compiledText, false);
         
@@ -183,11 +222,12 @@ public class Page {
         //    throw new NullPointerException("Null navText");
         //}
         String compiledText = compilePageNoNav(frameworkPath);
-        ContentParser cP = new ContentParser(new DesignInfoSet(designInfoSet));
+        //ContentParser cP = new ContentParser(new DesignInfoSet(designInfoSet));
         //Navigation
         //String navTextMod = compileNavMobilePage(navText);
         String navTextMod = compileNavMobilePage();
-        compiledText = cP.compileNavigation(compiledText, navTextMod);
+        //compiledText = cP.compileNavigation(compiledText, navTextMod);
+        compiledText = compileNavigation(compiledText, navTextMod);
         //Handle markers
         compiledText = handleMarkers(compiledText, true);
 
@@ -298,6 +338,7 @@ public class Page {
             throw new NullPointerException("Null uploadsResourcesRel");
         }
         compiledText = compiledText.replaceAll("(?i)<WEBURL>", websiteURL);
+        compiledText = compiledText.replaceAll("(?i)<WEBNAME>", websiteName);
         //Handle page title
         compiledText = compiledText.replaceAll("(?i)<PAGETITLE>", pageTitle + " - " + websiteName);
         //Handle page name
@@ -314,26 +355,37 @@ public class Page {
         if (frameworkPath == null) {
             throw new NullPointerException("Null FrameworkPath");
         }
-        ContentParser cP = new ContentParser(new DesignInfoSet(designInfoSet));
+        //ContentParser cP = new ContentParser(new DesignInfoSet(designInfoSet));
         //Main page
         String compiledText = FileUtilities.read(frameworkPath, "UTF-8");
         if (compiledText == null) {
             compiledText = "";
         }
-        compiledText = cP.compileMainText(compiledText, getResourcePageCfg());
+        //compiledText = cP.compileMainText(compiledText, getResourcePageCfg());
         //Replace content
-        compiledText = cP.compileTitles(compiledText, pageName);
-        compiledText = cP.compileParagraphs(compiledText, pageName);
-        compiledText = cP.compileCodes(compiledText, pageName);
-        compiledText = cP.compileFiles(compiledText, pageName);
-        compiledText = cP.compileImages(compiledText, pageName);
-        compiledText = cP.compileGalleries(compiledText, pageName);
-        compiledText = cP.compileDividers(compiledText,pageName);
-        cP = null;
+        //compiledText = cP.compileTitles(compiledText, pageName);
+        //compiledText = cP.compileParagraphs(compiledText, pageName);
+        //compiledText = cP.compileCodes(compiledText, pageName);
+        //compiledText = cP.compileFiles(compiledText, pageName);
+        //compiledText = cP.compileImages(compiledText, pageName);
+        //compiledText = cP.compileGalleries(compiledText, pageName);
+        //compiledText = cP.compileDividers(compiledText,pageName);
+        
+        compiledText = compileMainText(compiledText, getResourcePageCfg());
+        //Replace content
+        compiledText = compileTitles(compiledText, pageName);
+        compiledText = compileParagraphs(compiledText, pageName);
+        compiledText = compileCodes(compiledText, pageName);
+        compiledText = compileFiles(compiledText, pageName);
+        compiledText = compileImages(compiledText, pageName);
+        compiledText = compileGalleries(compiledText, pageName);
+        compiledText = compileDividers(compiledText,pageName);
+        //cP = null;
         return(compiledText);
     }
-    //compile navigation
+    //compile navigation for main
     private String compileNavMainPage() {
+        //For navigation, this is the only place one page needs to know about others
         String allPageNames = getDesignSetItem("allPageNames");
         String allPageTitles = getDesignSetItem("allPageTitles");
         String allDisplayInNav = getDesignSetItem("allDisplayInNav");
@@ -374,6 +426,7 @@ public class Page {
         }
         return new String(navListText);
     }
+    //Compile navigation for mobile 
     private String compileNavMobilePage() {
         String allPageNames = getDesignSetItem("allPageNames");
         String allPageTitles = getDesignSetItem("allPageTitles");
@@ -408,6 +461,7 @@ public class Page {
                 } else {
                     navSelectedThis = navNonSelected;
                 }
+                //use php & option to achieve compact navigation in mobile
                 navListText.append("<option " + navSelectedThis + "value=\"/mobile/" 
                     + allPageNameArray[i] + ".php\">" 
                     + allPageTitleArray[i] + "</option>\n");
@@ -415,5 +469,130 @@ public class Page {
         }
         return new String(navListText);
     }
+    
+    /*************************************************************/
+    /*************** Compiling routines **************************/
+    /*************************************************************/
+    //Framework compile
+    /* This is compiling for the whole website, not for single pages
+    So it is better to fit in this class, not in Page class */
+    //MainText
+    private String compileMainText(String text, String pageCfg) {
+        String mainText = FileUtilities.read(pageCfg, "UTF-8");
+        if (mainText == null) {
+            mainText = "";
+        }
+        String compiledText = text.replace("<<<###_MAINTEXT_###>>>", insertMarker(mainText, "MAINTEXT"));
+        return(compiledText);
+    }
+    //Navigation
+    private String compileNavigation(String text, String navText) {
+        String compiledText = text.replace("<<<###_NAVIGATION_###>>>", insertMarker(navText, "NAVIGATION"));
+        return(compiledText);
+    }
+    
+    //WebModule Compile
+    //Compile routine
+    private String compileRoutine(String text, String pageName, WebModuleEnum typeEnum) {
+        if (text == null) {
+            throw new NullPointerException("Null text when compiling " + typeEnum.getValue());
+        }
+        if (pageName == null) {
+            throw new NullPointerException("Null pageName when compiling " + typeEnum.getValue());
+        }
+        if (typeEnum == null) {
+            throw new NullPointerException("Null typeEnum when compiling " + typeEnum.getValue());
+        }
+        String compiledText = new String(text);
+        //ContentParser cP = new ContentParser(new DesignInfoSet(designInfoSet));
+        int id = ContentParser.patternIdFind(compiledText, typeEnum.getValue());
+        while (id >= 1) {
+            WebModuleDefault module = null;
+            switch (typeEnum) {
+                case TITLE: 
+                    module = new WebModuleTitle(new DesignInfoSet(designInfoSet), pageName, id);
+                    break;
+                case PARAGRAPH: 
+                    module = new WebModuleParagraph(new DesignInfoSet(designInfoSet), pageName, id);
+                    break;
+                case CODE: 
+                    module = new WebModuleCode(new DesignInfoSet(designInfoSet), pageName, id);
+                    break;
+                case FILE: 
+                    module = new WebModuleFile(new DesignInfoSet(designInfoSet), pageName, id);
+                    break;
+                case IMAGE: 
+                    module = new WebModuleImage(new DesignInfoSet(designInfoSet), pageName, id);
+                    break;
+                case GALLERY: 
+                    module = new WebModuleGallery(new DesignInfoSet(designInfoSet), pageName, id);
+                    break;
+                case DIVIDER: 
+                    module = new WebModuleDivider(new DesignInfoSet(designInfoSet), pageName, id);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Type " 
+                        + typeEnum.getValue() + " is not legal");    
+            }
+            compiledText = compiledText.replaceAll("(?i)" + module.getTargetWithMarker(), module.getMarkedContent());
+            id = ContentParser.patternIdFind(compiledText, typeEnum.getValue());
+        }        
+        return(compiledText);
+    }
+    //Title
+    private String compileTitles(String text, String pageName) {
+        return compileRoutine(text, pageName, WebModuleEnum.TITLE);
+    }    
+    //Paragraph
+    private String compileParagraphs(String text, String pageName) {
+        return compileRoutine(text, pageName, WebModuleEnum.PARAGRAPH);
+    }
+    //Code
+    private String compileCodes(String text, String pageName) {
+        return compileRoutine(text, pageName, WebModuleEnum.CODE);
+    }
+    //File
+    private String compileFiles(String text, String pageName) {
+        return compileRoutine(text, pageName, WebModuleEnum.FILE);
+    }
+    //Image
+    private String compileImages(String text, String pageName) {
+        return compileRoutine(text, pageName, WebModuleEnum.IMAGE);
+    }
+    //Gallery
+    private String compileGalleries(String text, String pageName) {
+        return compileRoutine(text, pageName, WebModuleEnum.GALLERY);
+    }
+    //Divider
+    private String compileDividers(String text, String pageName) {
+        return compileRoutine(text, pageName, WebModuleEnum.DIVIDER);
+    }
+    //Insert identifier 
+    private String insertMarker(String textItem, String target) {
+        return("<!-- " + target + " START -->" 
+            + textItem 
+            + "<!-- " + target + " END -->");
+    }    
+    private String insertMarker(String text, WebModuleEnum typeEnum, int id) {
+        return(insertMarker(text, typeEnum.getValue() + "_" + id));
+    }    
+    
+    public static void main(String[] args) {
+        Page p = new Page(1, "Index", "Home Page", true, 
+            new DesignInfoSet(new HashMap<String, String>()));
+        System.out.println(p.getLevel());
+        System.out.println(p.getPageName());
+        System.out.println(p.getPageTitle());
+        System.out.println(p.getDisplayInNav());
+        System.out.println(p.getCfgName());
+        System.out.println(p.getMainFullFileName());
+        System.out.println(p.getMobileFullFileName());
+        System.out.println(p.getMainFullFilePath());
+        System.out.println(p.getMobileFullFilePath());
+        System.out.println(p.getUploadParent());
+        System.out.println(p.getResourceCfgDir());
+        System.out.println(p.getResourcePageCfg()); 
+        System.out.println(p.getPageContent());
+    }  
     
 }

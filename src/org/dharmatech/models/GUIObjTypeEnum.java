@@ -3,7 +3,10 @@
    Version date: 2016 Jan 19
 */
 /* API
-
+public enum GUIObjTypeEnum {
+    GUIObjTypeEnum(String val) {}
+    public String getValue() {}
+}
 */
 package org.dharmatech.models;
 
@@ -24,6 +27,7 @@ public enum GUIObjTypeEnum {
     GUIObjTypeEnum(String val) {
         this.val = val;
     }
+    //Get the String value of the enum
     public String getValue() {
         return (val);
     }

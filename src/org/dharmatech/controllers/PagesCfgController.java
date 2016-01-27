@@ -2,11 +2,13 @@
 /* Author: Wei Zhang
    Latest Version: 2016 Jan 20
 */
+/* The controller of GUI PagesCfg */
+/* Handles page configurations */
 /*API
 public class PagesCfgController {
-    public PagesCfgController(String filePath)
-    public void start()
-    public static void main(String[] args)
+    public PagesCfgController(String filePath) {}
+    public void start() {}
+    public static void main(String[] args) {}
 }
 */
 package org.dharmatech.controllers;
@@ -23,12 +25,14 @@ import java.util.*;
 import javax.swing.table.*;
 
 public class PagesCfgController {
-    private PagesCfg pagesCfg;
+    private PagesCfg pagesCfg;  //GUI
     private Command reloadMain;
     //parameters
     private final String filePath;
     private final String[] colNames = {"Level", "Page Name", "Page Title", "Shown in Nav"};
 
+    //Constructor with the configuration path, 
+    //and a Command with WebEditor GUI reloading method packed
     public PagesCfgController(String filePath, Command reloadMain) throws IOException {
         if (filePath == null) {
             throw new NullPointerException("Null filePath");
@@ -75,9 +79,10 @@ public class PagesCfgController {
         pagesCfg.tableSetModel("pagesTb", model);
         pagesCfg.tableSetRowSelectionInterval("pagesTb", 0, 0);
 
-                //Load pages
+        //Load pages
         File f = new File(filePath);
         if (f.exists() && f.isFile()) {
+            //Collect data
             String text = FileUtilities.read(filePath, "UTF-8");
             String[] lines = text.split("\n");
             data = new Object[lines.length][4];
@@ -103,15 +108,18 @@ public class PagesCfgController {
                 data[j][2] = "";
                 data[j][3] = new Boolean(false);
             }
+            //Load data
             model = new RegTableModel(data, colNames);
             pagesCfg.tableSetModel("pagesTb", model);
             (pagesCfg.tableGetColumn("pagesTb", colNames[0])).setPreferredWidth(
                 Math.round(pagesCfg.tableGetPreferredSize("pagesTb").width * 0.05f));
             //table.getColumn(colNames[0]).setMaxWidth(20);
-            pagesCfg.tableSetRowSelectionInterval("pagesTb", 0, 0); //Need to select something! (it has at least 1 empty row)
+            //Need to select something! (it has at least 1 empty row as guaranteed by the initializing)
+            pagesCfg.tableSetRowSelectionInterval("pagesTb", 0, 0); 
         }
     }
-    
+    //Listeners
+    //Window Listener
     private class PagesWindowListener extends WindowAdapter {
         @Override
         public void windowClosing(WindowEvent we) {
@@ -120,21 +128,23 @@ public class PagesCfgController {
             //}
         }
     }
-    //Listeners
-    private class SaveActionListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent event) {
-            save();
-            reloadMain.execute(null);
-        }
-    }
+    //Exit Listener
     private class ExitActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent event) {
             close();
         }
     }
-    
+    //Save Listener
+    private class SaveActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent event) {
+            save();
+            reloadMain.execute(null);
+            pagesCfg.frameToFront("editorGUI");
+        }
+    }
+    //Insert Listener
     private class InsertActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent event) {
@@ -144,10 +154,12 @@ public class PagesCfgController {
             } else {
                 insertRow(currentLoc);
             }
-            pagesCfg.tableSetRowSelectionInterval("pagesTb", currentLoc + 1, currentLoc + 1);
+            pagesCfg.tableSetRowSelectionInterval("pagesTb", 
+                currentLoc + 1, currentLoc + 1);
             pagesCfg.buttonSetEnabled("save", true);
         }
     }
+    //Delete Listener
     private class DeleteActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent event) {
@@ -158,20 +170,23 @@ public class PagesCfgController {
             deleteRow(currentLoc);
             RegTableModel tbModel = (RegTableModel) pagesCfg.tableGetModel("pagesTb");
             if (tbModel.getRowCount() > currentLoc) {
-                pagesCfg.tableSetRowSelectionInterval("pagesTb", currentLoc, currentLoc);
+                pagesCfg.tableSetRowSelectionInterval("pagesTb", 
+                    currentLoc, currentLoc);
             } else if (tbModel.getRowCount() > 0) {
-                pagesCfg.tableSetRowSelectionInterval("pagesTb", currentLoc - 1, currentLoc - 1);
+                pagesCfg.tableSetRowSelectionInterval("pagesTb", 
+                    currentLoc - 1, currentLoc - 1);
             }
             pagesCfg.buttonSetEnabled("save", true);
         }
     }
+    //Move Listener
     private class MoveActionListener implements ActionListener {
         private int direction = -1; //-1: up; +1: down
         public MoveActionListener(int direction) {
             if (direction <= 0) {
                 this.direction = -1;  //up
             } else {
-                this.direction = 1;
+                this.direction = 1; //down
             }
         }
         @Override
@@ -182,12 +197,13 @@ public class PagesCfgController {
             }
             boolean swapped = swapRow(currentLoc, currentLoc + direction);
             if (swapped) {
-                pagesCfg.tableSetRowSelectionInterval("pagesTb", currentLoc + direction, currentLoc + direction);
+                pagesCfg.tableSetRowSelectionInterval("pagesTb", 
+                    currentLoc + direction, currentLoc + direction);
                 pagesCfg.buttonSetEnabled("save", true);
             }
         }
     }
-    
+    //Insert a row at the given index
     private void insertRow(int i) {
         RegTableModel tbModel = (RegTableModel) pagesCfg.tableGetModel("pagesTb");
         if (i < 0 
@@ -200,7 +216,7 @@ public class PagesCfgController {
         Object[] newRow = {1, "", "", false};
         tbModel.insertRow(i, newRow);
     }
-    
+    //Delete a row
     private void deleteRow(int i) {
         RegTableModel tbModel = (RegTableModel) pagesCfg.tableGetModel("pagesTb");
         if (i < 0 || i >= tbModel.getRowCount()) {
@@ -210,7 +226,7 @@ public class PagesCfgController {
         }
         tbModel.removeRow(i);
     }
-    
+    //Swap a row: moving is essentially a swapping
     private boolean swapRow(int i, int j) {
        RegTableModel tbModel = (RegTableModel) pagesCfg.tableGetModel("pagesTb");
        if (i < 0 || i >= tbModel.getRowCount()) {
@@ -276,5 +292,15 @@ public class PagesCfgController {
     //Exit
     private void close() {
         pagesCfg.frameDispatchEvent("editorGUI", WindowEvent.WINDOW_CLOSING);
+    }
+    
+    public static void main(String[] args) {
+        /*PagesCfgController pcc = null;
+        try {
+            pcc = new PagesCfgController("cfg.path", null);
+        } catch(Exception ex) {
+            ex.printStackTrace();
+        }
+        pcc.start();*/
     }
 }

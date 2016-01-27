@@ -2,11 +2,15 @@
 /* Author: Wei Zhang
    Latest Version: 2016 Jan 17
 */
+/* The controller of GUI FileEditor */
+/* Handles all plain text handling, including:
+   Title, Paragraph, Code,
+   Framework, Stylesheet */
 /*API
 public class FileEditorController {
-    public FileEditorController(String filePath)
-    public void start()
-    public static void main(String[] args)
+    public FileEditorController(String filePath) {}
+    public void start() {}
+    public static void main(String[] args) {}
 }
 */
 package org.dharmatech.controllers;
@@ -22,7 +26,7 @@ import java.io.*;
 import java.util.*;
 
 public class FileEditorController {
-    private FileEditor fileEditor;
+    private FileEditor fileEditor; //GUI
     
     //Optional 
     private WebModuleEnum typeEnum = null;
@@ -31,7 +35,8 @@ public class FileEditorController {
     private int id = 0;
     //parameters
     private final String filePath;
-    
+    //Constructor with the target file path
+    //To be used by framework/stylesheet editor
     public FileEditorController(String filePath) throws IOException {
         if (filePath == null) {
             throw new NullPointerException("Null filePath");
@@ -45,6 +50,9 @@ public class FileEditorController {
         
     }
     
+    //Constructor with the target file path, a designInfoSet object,
+    //page name, module id, and module type
+    //To be used by module editor
     public FileEditorController(String filePath, 
         DesignInfoSet designInfoSet, 
         String pageName, int id, WebModuleEnum typeEnum) 
@@ -83,6 +91,8 @@ public class FileEditorController {
         init();
         fileEditor.frameSetVisible("editorGUI", true);
         fileEditor.textAreaEnableUndo("contentTA");
+        fileEditor.textAreaSetLineWrap("contentTA", true);
+
         fileEditor.textAreaSetCaretPosition("contentTA", 0);
         fileEditor.textAreaRequestFocus("contentTA");
     }

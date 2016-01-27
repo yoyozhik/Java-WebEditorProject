@@ -5,12 +5,31 @@
 */
 /*API
 class FileUtilities {
-    public FileUtilities()
-    public static String read(String filepath)
-    public static String read(String filepath, String enc)
-    public static void write(String filepath, String text)
-    public static void write(String filepath, String text, String enc)
-    public static void parentCreate(String filepath) 
+    public FileUtilities() {}
+    public static String readLine(String filepath) {}
+    public static String readLine(String filepath, String enc) {}
+    public static String read(String filepath) {}
+    public static String read(String filepath, String enc) {}
+    public static void write(String filepath, String text) {}
+    public static void write(String filepath, String text, String enc) {}
+    public static void parentCreate(String filepath) {}
+    public static void copyFile(String fileSourceStr, String fileDestStr, boolean overwrite) throws FileAlreadyExistsException {}
+    public static boolean renameFile(String fileSourceStr, String fileDestStr) throws FileAlreadyExistsException {}
+    public static String uploadFile(String fileSourceStr, String fileDestStr) {}
+    public static void uploadResizedImage(String origImagePath, int widthMax, int heightMax, String outputPath) {}
+    public static BufferedImage loadImage(String origImagePath) {}
+    public static BufferedImage resizeImage(BufferedImage bufImg, String format, int widthMax, int heightMax) {}
+    public static BufferedImage resizeImage(BufferedImage bufImg, int widthMax, int heightMax) {}
+    public static void saveImage(BufferedImage bufImg, String format, String outputPath) {}
+    public static String[] recordSplit(String str) {}
+    public static boolean deleteFile(String targetPath) {}
+    public static boolean deleteFolder(String targetPath) {}
+    public static String autoEllipsis(String text, int maxLen, boolean showEnd) {}
+    public static String autoEllipsis(String text, int maxLen) {}
+    public static String autoEllipsis(String text) {}
+    public static String readProcSeparator(String text) {}
+    public static String writeProcSeparator(String text) {}
+    public static void main(String[] args) {}
 }
 */
 /* Note:
@@ -31,13 +50,14 @@ import java.util.regex.*;
 
 //import java.nio.file.StandardCopyOption.*;
 public class FileUtilities {
+    //The character used by Windows NotePad to indicate a UTF-8 Text File
+    //Windows NotePad always adds this to the beginning of the text file
     private static final String UTF8_BOM = Character.toString((char) (65279));
-    private static final boolean ADD_UTF8_BOM = true;
+    private static final boolean ADD_UTF8_BOM = true; //true to add this char like Notepad
     
     public FileUtilities() {
     }
-
-    
+   
     //Read
     //Read one line without encoding
     public static String readLine(String filepath) {
@@ -255,7 +275,10 @@ public class FileUtilities {
         }
         return success;
     }
-    
+    //upload file from source to dest
+    //do nothing if both files are the same one
+    //rename if both files are in the same dir
+    //copy if files are in different folders
     public static String uploadFile(String fileSourceStr, String fileDestStr) {
         File src = new File(fileSourceStr);  //source file
         File dest = new File(fileDestStr);    //target file
@@ -271,11 +294,11 @@ public class FileUtilities {
                 try {
                     success = renameFile(fileSourceStr, fileDestStr);
                 } catch (FileAlreadyExistsException ex) {
-                    status = "Error: Target file exits when renaming: " + fileDestStr;
+                    status = "<html><font color=\"red\">Error: Target file exists when renaming.</font></html>";
                     System.out.println(status);
                     return status;
                 } catch (Exception ex) {
-                    status = "Error: Exception during renaming.";
+                    status = "<html><font color=\"red\">Error: Exception during renaming.</font></html>";
                     System.out.println(status);
                     ex.printStackTrace();
                     return status;
@@ -290,11 +313,11 @@ public class FileUtilities {
                 try {
                     copyFile(fileSourceStr, fileDestStr, true);
                 } catch (FileAlreadyExistsException ex) {
-                    status = "Error: Target file exits when copying: " + fileDestStr;
+                    status = "<html><font color=\"red\">Error: Target file exits when copying. </font></html>";
                     System.out.println(status);
                     return status;
                 } catch (Exception ex) {
-                    status = "Error: Exception during copying.";
+                    status = "<html><font color=\"red\">Error: Exception during copying.</font></html>";
                     System.out.println(status);
                     ex.printStackTrace();                    
                     return status;
@@ -408,6 +431,7 @@ public class FileUtilities {
             ex.printStackTrace();
         }
     }
+    //Get the file format from the path
     private static String getFormat(String path) {
         String format = "";
         int i = path.lastIndexOf(".");
@@ -419,6 +443,7 @@ public class FileUtilities {
         }
         return format;
     }
+    //See if the format is a supported image format
     private static void checkFormat(String format) {
         if (format == null) {
             throw new NullPointerException("Null format");
@@ -434,7 +459,8 @@ public class FileUtilities {
                 throw new IllegalArgumentException("Image format not supported: " + format);
         }
     }
-    
+    //Get the recommended RGBtype when drawing BufferedImage
+    //according to format
     private static int getRGBType(String format) {
         int rgbType = -1;
         switch (format.toLowerCase()) {
@@ -469,7 +495,7 @@ public class FileUtilities {
         }
         return records;
     }
-    
+    //Delete a file if it exists
     public static boolean deleteFile(String targetPath) {
         File f = new File(targetPath);
         if (f.exists() && f.isFile()) {
@@ -489,7 +515,8 @@ public class FileUtilities {
         }
         return true;
     }
-    
+    //Recursively delete a folder including its subfiles and subfolders
+    //if it exists
     public static boolean deleteFolder(String targetPath) {
         boolean success = true;
         File d = new File(targetPath);
@@ -519,7 +546,7 @@ public class FileUtilities {
         }
         return success;
     }
-    
+    //Automatically do ellipsis for a long string
     public static String autoEllipsis(String text, int maxLen, boolean showEnd) {
         if (text == null) {
             throw new NullPointerException("Null text");
@@ -538,17 +565,24 @@ public class FileUtilities {
             return text;
         }
     }
-    
+    //Automatically do ellipsis for a long string
+    //assuming showing both beginning and end
     public static String autoEllipsis(String text, int maxLen) {
         return autoEllipsis(text, maxLen, true);
     }
+    //Automatically do ellipsis for a long string
+    //assuming showing both beginning and end
+    //assuming the max length is 60
     public static String autoEllipsis(String text) {
         return autoEllipsis(text, 60);
     }
-    
+    //Read: Process File.separator for cross-platform support 
+    //The record file always stores "\"
     public static String readProcSeparator(String text) {
         return text.replace("\\", File.separator);
     }
+    //Write: Process File.separator for cross-platform support 
+    //The record file always stores "\"
     public static String writeProcSeparator(String text) {
         return text.replace(File.separator, "\\");
     }

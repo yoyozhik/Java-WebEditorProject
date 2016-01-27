@@ -1,17 +1,27 @@
 /* File Utilities 
 */
 /* Author: Wei Zhang
-   Latest Version: 2016 Jan 18
+   Latest Version: 2016 Jan 26
 */
+/* Utility to parse selection data */
 /*API
 class ContentParser {
-    public ContentParser()
-    
+    public ContentParser() {}
+    public static boolean patternExists(String text, String target) {}
+    public static boolean patternExists(String text, String type, int id) {}
+    public static int patternIdFind(String text, String type) {}
+    public static Matcher patternTypeIdFind(String text) {}
+    public static String removeFirstPattern(String text) {}
+    public static void main(String[] args) {} 
 }
 */
-
-package org.dharmatech.models;
-import org.dharmatech.utilities.*;
+/* Note:
+Making static methods to avoid initilization overhead.
+Not thread safe!
+This app has no multi-thread scenario so it is safe.
+*/
+package org.dharmatech.utilities;
+import org.dharmatech.models.*;
 import org.dharmatech.controllers.DesignInfoSet;
 
 import java.util.regex.*;
@@ -19,27 +29,34 @@ import java.io.*;
 import java.util.HashMap;
 
 public class ContentParser {
-    private DesignInfoSet designInfoSet;
-    public ContentParser(DesignInfoSet designInfoSet) { //for compiling
-        setDesignInfoSet(designInfoSet);
+    //private DesignInfoSet designInfoSet;
+    //constructor with DesignInfoSet object
+    //public ContentParser(DesignInfoSet designInfoSet) {
+    //    setDesignInfoSet(designInfoSet);
+    //}
+    public ContentParser() {
     }
-    public void setDesignInfoSet(DesignInfoSet designInfoSet) {
-        this.designInfoSet = new DesignInfoSet(designInfoSet);
-    }
+    //set the DesignInfoSet without reinstantialting
+    //public void setDesignInfoSet(DesignInfoSet designInfoSet) {
+    //    this.designInfoSet = new DesignInfoSet(designInfoSet);
+    //}
+    
     //Check if the given Type_Id section exists in the current text
-    public boolean patternExists(String text, String target) {
+    public static boolean patternExists(String text, String target) {
         String pattern = "(?i)<<<###_" + target + "_###>>>";
         Pattern p = Pattern.compile(pattern);
         Matcher m = p.matcher(text);
         return(m.find());
     }
-    public boolean patternExists(String text, String type, int id) {
+    //Check if the given Type_Id section exists in the current text
+    //Overload
+    public static boolean patternExists(String text, String type, int id) {
         String target = type + "_" + id;
         return(patternExists(text, target));
     }
     //Find id from the given text of the given type
     //Returns the integer id; -1 means no match    
-    public int patternIdFind(String text, String type) {
+    public static int patternIdFind(String text, String type) {
         String pattern = "(?i)<<<###_" + type + "_" + "(\\d+)" + "_###>>>";
         Pattern p = Pattern.compile(pattern);
         Matcher m = p.matcher(text);
@@ -52,7 +69,7 @@ public class ContentParser {
     
     //Find Type_Id sections from the given text
     //Returns the matcher object m; m.group(1) is the type, m.group(2) is the id 
-    public Matcher patternTypeIdFind(String text) {
+    public static Matcher patternTypeIdFind(String text) {
         String pattern = "(?i)<<<###_" + "([0-9a-zA-Z_]+)" + "_" + "(\\d+)" + "_###>>>";
         Pattern p = Pattern.compile(pattern);
         Matcher m = p.matcher(text);
@@ -60,7 +77,7 @@ public class ContentParser {
     }
     
     //Remove the first pattern found in the text
-    public String removeFirstPattern(String text) {
+    public static String removeFirstPattern(String text) {
         String pattern = "(?i)<<<###_" + "([0-9a-zA-Z_]+" + "_" + "\\d+)" + "_###>>>";
         Pattern p = Pattern.compile(pattern);
         Matcher m = p.matcher(text);
@@ -77,8 +94,8 @@ public class ContentParser {
         }
     }
     
+    /* moved to Page class
     //Framework compile
-    
     //MainText
     public String compileMainText(String text, String pageCfg) {
         String mainText = FileUtilities.read(pageCfg, "UTF-8");
@@ -178,5 +195,20 @@ public class ContentParser {
     private String insertMarker(String text, WebModuleEnum typeEnum, int id) {
         return(insertMarker(text, typeEnum.getValue() + "_" + id));
     }    
+    */   
+    public static void main(String[] args) {
+        boolean test = false;
+        test = patternExists("<<<###_FILE_1_###>>>", "FILE_1");
+        System.out.println(test);
+        test = patternExists("<<<###_FILE_1_###>>><<<###_IMAGE_1_###>>>", "FILE", 1);
+        System.out.println(test);
+        int i = patternIdFind("<<<###_FILE_1_###>>>", "FILE");
+        Matcher m = patternTypeIdFind("<<<###_FILE_1_###>>> <<<###_IMAGE_2_###>>>");
+        System.out.println(m.group(1));
+        System.out.println(m.group(2));
+        String s = removeFirstPattern("###>>> <<<###_FILE_1_###>>> <<<###_IMAGE_2_###>>>");
+        System.out.println(s);
+    }
+
     
 }

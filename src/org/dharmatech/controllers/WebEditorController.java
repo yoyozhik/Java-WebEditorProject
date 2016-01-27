@@ -1,14 +1,17 @@
 /* WebEditor Controller */
 /* Author: Wei Zhang
-   Latest Version: 2016 Jan 17
+   Latest Version: 2016 Jan 26
 */
+/* The main controller of the entire WebEditor Project*/
+/* The controller of GUI WebEditor */
 /* API
 class WebEditorController {
-    public WebEditorController()
-    public void start()
-    public static void main(String[] args)
+    public WebEditorController() {}
+    public void start() {}
+    public static void main(String[] args) {}
 }
 */
+/* Model-View-Controller Pattern */
 /*
 Windows Example
 Compile: javac org\\dharmatech\\views\\*.java org\\dharmatech\\controllers\\*.java org\\dharmatech\\models\\*.java org\\dharmatech\\utilities\\*.java -d ..\\class
@@ -58,7 +61,7 @@ public class WebEditorController {
     private String stylesheet;
     private String mobileStylesheet;
     
-   
+    //constructor, setting constant string values
     public WebEditorController() {
         webEditor = new WebEditor();
         designSet.put("resourceDirRel", resourceDirRel);
@@ -108,24 +111,29 @@ public class WebEditorController {
 
     }
     
+    //Encapsulate reload operations to Command interface
+    //so that PagesCfgController & SiteInfoCfgController can trigger reloading
+    //without exposing the controller itself to those classes
     private class ReloadCfg implements Command {
         public void execute(Object data) 
         {
             webEditor.buttonClick("save");
-            init();
+            //init();
+            loadPages();
             webEditor.labelSetText("statusLb", "Configuration reloaded.");
         }
     }
     
+    //Initialize
     private void init() {
         //Initialize status
         menuItemsSetEnabledAll(false);
         
         webEditor.labelSetText("statusLb", "Initializing...");
-        webEditor.labelSetText("rootDirLb", "Root Dir Unspecified");
+        webEditor.labelSetText("rootDirLb", "<html><font color=\"red\">Root Dir Unspecified</font></html>");
         webEditor.textAreaSetText("contentTA", "");
         webEditor.textAreaEnableUndo("contentTA");
-        
+        webEditor.textAreaSetLineWrap("contentTA", true);
         webEditor.buttonSetEnabled("rename", false);
         
         //Load root
@@ -154,7 +162,7 @@ public class WebEditorController {
             webEditor.labelSetText("rootDirLb", line);
             rootDir = line;
         } else {
-            webEditor.labelSetText("statusLb", "Please specify Design Root.");
+            webEditor.labelSetText("statusLb", "<html><font color=\"red\">Please specify Design Root.</font></html>");
             return false;  //If no root, nothing to load
         }
         File f = new File(rootDir);
@@ -162,7 +170,7 @@ public class WebEditorController {
             setupCfg();
         } else {
             webEditor.labelSetText("rootDirLb", "Unspecified");
-            webEditor.labelSetText("statusLb", "Please specify Design Root.");
+            webEditor.labelSetText("statusLb", "<html><font color=\"red\">Please specify Design Root.</font></html>");
             rootDir = null;  //Do not accept illeagal root dir
             return false;
         }
@@ -199,8 +207,9 @@ public class WebEditorController {
             DesignInfoSet designInfoSet = new DesignInfoSet(designSet);
             String[] lines = line.split("\n");
             for(String sline: lines) {
-                String[] pars = sline.split(",");  //What if the name or title contains ","?
-                if (pars.length >= 4) {
+                //Use advanced splitting to handle comma(,) in "", like "hello, world"
+                String[] pars = FileUtilities.recordSplit(sline);
+                if (pars.length >= 4) { //Parse each line to get each component
                     int level = Integer.parseInt(pars[0]);
                     String pageName = pars[1].replace("\"", "");
                     String pageTitle = pars[2].replace("\"", "");
@@ -261,6 +270,7 @@ public class WebEditorController {
             designSet.put("websiteURLCfg", websiteURLCfg);
             designSet.put("stylesheet", stylesheet);
             designSet.put("mobileStylesheet", mobileStylesheet); 
+            //Need to reset designSet copy
             //HashMap<String, String> designSetCopy = new HashMap<String, String>(designSet);
             DesignInfoSet designInfoSet = new DesignInfoSet(designSet);
             for (Page p : pages) {
@@ -270,7 +280,7 @@ public class WebEditorController {
             webEditor.labelSetText("rootDirLb", "Root Dir Unspecified");
         }
     }
-    
+    //Launch 
     public void start() {
         if (webEditor == null) {
             throw new NullPointerException("Null webEditor");
@@ -406,12 +416,12 @@ public class WebEditorController {
                 //
             }
             DesignInfoSet designInfoSet = new DesignInfoSet(designSet);
-            ContentParser cP = new ContentParser(designInfoSet);
+            //ContentParser cP = new ContentParser(designInfoSet);
             int location = webEditor.textAreaGetSelectionStart("contentTA");
             String s = webEditor.textAreaGetText("contentTA");
             String chosen = webEditor.textAreaGetSelectedText("contentTA");
             s = s.substring(0, location)
-                + cP.removeFirstPattern(chosen)
+                + ContentParser.removeFirstPattern(chosen)
                 + s.substring(location + chosen.length(), s.length());
             webEditor.textAreaSetText("contentTA", s);
             webEditor.labelSetText("statusLb", "Status: Deleted " 
@@ -419,10 +429,10 @@ public class WebEditorController {
         }
     }
     
-    //Rename action
+    //Rename action - TO DO
     private void renameAction() {
     }
-    
+    //helper: parse the selection and get the target module
     private WebModuleDefault getSelectedModule() {
         String chosen = webEditor.textAreaGetSelectedText("contentTA");
         if (chosen == null) {
@@ -430,8 +440,8 @@ public class WebEditorController {
         }
         //HashMap<String, String> designSetCopy = new HashMap<String, String>(designSet);
         DesignInfoSet designInfoSet = new DesignInfoSet(designSet);
-        ContentParser cP = new ContentParser(designInfoSet);
-        Matcher m = cP.patternTypeIdFind(chosen);
+        //ContentParser cP = new ContentParser(designInfoSet);
+        Matcher m = ContentParser.patternTypeIdFind(chosen);
         WebModuleDefault module = null;
         if (m.find()) {
             String type = m.group(1).toUpperCase();
@@ -489,16 +499,16 @@ public class WebEditorController {
     //Insert ActionListener Group
     //Insert: Get next available ID to use
     private int getNextID(WebModuleEnum typeEnum) {
-        String type = typeEnum.getValue(); //getEnumVal(typeEnum);
+        String type = typeEnum.getValue(); 
         String text = webEditor.textAreaGetText("contentTA");
         int id = 1;
         //HashMap<String, String> designSetCopy = new HashMap<String, String>(designSet);
         DesignInfoSet designInfoSet = new DesignInfoSet(designSet);
-        ContentParser cP = new ContentParser(designInfoSet);
-        while (cP.patternExists(text, type, id)) {
+        //ContentParser cP = new ContentParser(designInfoSet);
+        while (ContentParser.patternExists(text, type, id)) {
             id++;            
         }
-        cP = null;
+        //cP = null;
         return id;
     }
     //Insert Action Listeners
@@ -514,7 +524,7 @@ public class WebEditorController {
         }
         @Override
         public void actionPerformed(ActionEvent event) {
-            String type = getEnumVal(typeEnum);
+            String type = typeEnum.getValue();
             int id = getNextID(typeEnum);
             String s = webEditor.textAreaGetText("contentTA");
             int location = webEditor.textAreaGetCaretPosition("contentTA");
@@ -540,12 +550,35 @@ public class WebEditorController {
         } 
     }
     //Compile action
+    private boolean validateCfgFile(String filePath, String info) {
+        if (filePath == null) {
+            throw new NullPointerException("Null filePath");
+        }
+        if (info == null) {
+            throw new NullPointerException("Null info");
+        }
+        if (!(new File(filePath)).exists() 
+            || FileUtilities.read(filePath) == null
+            || FileUtilities.read(filePath).equals("")) {
+            webEditor.labelSetText("statusLb", 
+                "<html><font color=\"red\">" + info 
+                + " file missing or is blank. </font></html>");
+            return false;
+        }
+        return true;
+    }
     private void compileAction() {
         if (pages == null) {
             throw new NullPointerException("Null pages");
         }
         if (currentPage >= 0 && pages.size() > 0) {
             webEditor.buttonClick("save");
+        }
+        if (!validateCfgFile(frameworkCfg, "Framework")
+            || !validateCfgFile(mobileFrameworkCfg, "Mobile Framework")
+            || !validateCfgFile(websiteNameCfg, "WebSite Name")
+            || !validateCfgFile(websiteURLCfg, "Website URL")) {
+            return;
         }
         if (pages.size() > 0) {
             webEditor.labelSetText("statusLb", "Compiling...");
@@ -560,6 +593,10 @@ public class WebEditorController {
                 pages.get(i).compileMobile(mobileFrameworkCfg);
             }
             webEditor.labelSetText("statusLb", "Compiled " + pages.size() + " Pages.");
+        } else {
+            webEditor.labelSetText("statusLb", 
+                "<html><font color=\"red\">There are 0 pages. Nothing compiled.</font></html>");
+            return;
         }
         //Copy images resource to website folder
         String sourceImageDirStr = imagesResourcesDesignResourceRel;
@@ -568,8 +605,13 @@ public class WebEditorController {
             + File.separator + imagesResourcesRel;
         File sourceImageDir = new File(sourceImageDirStr);
         if (!sourceImageDir.exists() || sourceImageDir.isFile()) {
-            throw new NullPointerException("Images resource folder does not exist: " 
-                + sourceImageDirStr);
+            //throw new NullPointerException("Images resource folder does not exist: " 
+            //    + sourceImageDirStr);
+            webEditor.labelSetText("statusLb", 
+                "<html><font color=\"red\">Error: folder " 
+                + imagesResourcesRel 
+                + " missing or is invalid. </font></html>");
+            return;
         }
         File[] allImages = sourceImageDir.listFiles();
         File destImageDir = new File(destImageDirStr);
@@ -584,35 +626,6 @@ public class WebEditorController {
             }
         }
     }
-    /*
-    private String compileBuildNav(int webType) {
-        //webType: 0 - main PC html;  1 - mobile php
-        //Build navigation panel
-        StringBuilder navListText = new StringBuilder("");
-        //for (int i = 0; i < pages.size(); i++) {
-        //    System.out.println(pages.get(i).getLevel() + ":" + pages.get(i).getPageName() + ", " + pages.get(i).getPageTitle() + ": " + pages.get(i).getDisplayInNav());
-        //}
-        switch(webType) {
-            case 0:  //main PC html
-                for (int i = 0; i < pages.size(); i++) {
-                    if (pages.get(i).getDisplayInNav()) {
-                        navListText.append("\n<tr><td class=\"nav-entry\"><a class=\"nav\" href=\""
-                            + pages.get(i).getPageName() + ".html\">" + pages.get(i).getPageTitle() + "</a></td></tr>");
-                    }
-                }
-                break;
-            case 1:  //mobile php
-                for (int i = 0; i < pages.size(); i++) {
-                    if (pages.get(i).getDisplayInNav()) {
-                        navListText.append("<option value=\"/mobile/" 
-                            + pages.get(i).getPageName() + ".php\">" + pages.get(i).getPageTitle() + "</option>");
-                    }
-                }
-                break;
-        }
-        return (new String(navListText));
-    }
-    */
     
     //Save button Listener
     private class SaveActionListener implements ActionListener {
@@ -645,8 +658,7 @@ public class WebEditorController {
     }
     
     
-    //Generic information fetch
-    
+  
     //enable/disable all menuItems
     private void menuItemsSetEnabledAll(boolean enable) {
         webEditor.menuItemSetEnabled("frameworkItem", enable);
@@ -655,19 +667,6 @@ public class WebEditorController {
         webEditor.menuItemSetEnabled("mobileStyleItem", enable);
         webEditor.menuItemSetEnabled("pageItem", enable);
         webEditor.menuItemSetEnabled("infoItem", enable);
-    }
-
-    private String getEnumVal(WebModuleEnum e) {
-        switch(e) {
-            case TITLE: return ("TITLE");
-            case PARAGRAPH: return ("PARAGRAPH");
-            case CODE: return ("CODE");
-            case FILE: return ("FILE");
-            case IMAGE: return ("IMAGE");
-            case GALLERY: return ("GALLERY");
-            case DIVIDER: return ("DIVIDER");            
-        }
-        return null;
     }
  
     public static void main(String[] args) {
