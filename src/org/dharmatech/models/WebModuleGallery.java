@@ -124,7 +124,7 @@ public class WebModuleGallery extends WebModuleDefault{
         return 4;
     }
     public String[] getDescriptModeStrs() {
-        String[] descriptModeStrs = {"1 - Caption When Hover", "2 - Caption Always", "3 - No Caption"};
+        String[] descriptModeStrs = {"1 - Caption Always", "2 - Caption When Hover", "3 - No Caption"};
         return descriptModeStrs;
     }
     public int getDefDescriptMode() {
