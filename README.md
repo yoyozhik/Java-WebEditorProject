@@ -22,7 +22,7 @@ Inspired by the concept of Weebly:
 
 Improvement/Difference:
 
-1. Less restrictive: users have full access to all files compiled, as well as the webpage templates (including headers). Only HTML skill is needed to make customized changes.
+1. Less restrictive: users have full access to all files compiled, as well as the webpage templates (including headers). Only some HTML skill is needed to make customized changes, including making additional optimizations to mobile version (e.g. make the embedded Google Calendar more mobile-friendly).
 2. With source code, users have full access to module templates as well, although Java programming skill is needed to make changes
 3. No dependency on service providers any more. Unlike Weebly where it does not allow PHP or ASP or database to co-exist (due to no-access to the root folder), you can now keep these components in the same hosting service as you wish.
 4. File hiararchies are very clear and neatly organized. It is much easier to delete an uploaded file from your package compared to Weebly. That makes file deletion efficient if you need to clean up the space due to storage concerns in some hosting service providers.
