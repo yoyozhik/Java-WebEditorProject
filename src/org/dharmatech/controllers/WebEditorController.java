@@ -60,6 +60,7 @@ public class WebEditorController {
     private String websiteURLCfg;
     private String stylesheet;
     private String mobileStylesheet;
+    private String mobileOptCfg;
     
     //constructor, setting constant string values
     public WebEditorController() {
@@ -178,10 +179,21 @@ public class WebEditorController {
     }
     //Setup menuItems
     private void initMenuItems() {
+        //Remove action listeners if they exist; 
+        //otherwise they may end up with multiple action listener copies when we switch root
+        webEditor.menuItemRemoveAllActionListeners("frameworkItem");
+        webEditor.menuItemRemoveAllActionListeners("styleItem");
+        webEditor.menuItemRemoveAllActionListeners("mobileFrameworkItem");
+        webEditor.menuItemRemoveAllActionListeners("mobileStyleItem");
+        webEditor.menuItemRemoveAllActionListeners("mobileOptItem");
+        webEditor.menuItemRemoveAllActionListeners("pageItem");
+        webEditor.menuItemRemoveAllActionListeners("infoItem");
+        //Add action listeners
         webEditor.menuItemAddActionListener("frameworkItem", new MenuTemplateActionListener(frameworkCfg));
         webEditor.menuItemAddActionListener("styleItem", new MenuTemplateActionListener(stylesheet));
         webEditor.menuItemAddActionListener("mobileFrameworkItem", new MenuTemplateActionListener(mobileFrameworkCfg));
         webEditor.menuItemAddActionListener("mobileStyleItem", new MenuTemplateActionListener(mobileStylesheet));
+        webEditor.menuItemAddActionListener("mobileOptItem", new MenuTemplateActionListener(mobileOptCfg));
         webEditor.menuItemAddActionListener("pageItem", new PageItemActionListener());
         webEditor.menuItemAddActionListener("infoItem", new InfoItemActionListener());
         menuItemsSetEnabledAll(true);
@@ -211,9 +223,12 @@ public class WebEditorController {
                 String[] pars = FileUtilities.recordSplit(sline);
                 if (pars.length >= 4) { //Parse each line to get each component
                     int level = Integer.parseInt(pars[0]);
-                    String pageName = pars[1].replace("\"", "");
-                    String pageTitle = pars[2].replace("\"", "");
-                    boolean displayInNav = Boolean.parseBoolean(pars[3].replace("\"", ""));
+                    //String pageName = pars[1].replace("\"", "");
+                    //String pageTitle = pars[2].replace("\"", "");
+                    String pageName = pars[1];
+                    String pageTitle = pars[2];
+                    //boolean displayInNav = Boolean.parseBoolean(pars[3].replace("\"", ""));
+                    boolean displayInNav = Boolean.parseBoolean(pars[3]);
                     StringBuilder uns = new StringBuilder();
                     for (int l = 1; l < level; l++) {
                         uns.append("--");
@@ -261,6 +276,8 @@ public class WebEditorController {
                 + File.separator + "styles"  + File.separator + "stylesheet.css";
             mobileStylesheet = rootDir + File.separator + websiteDirRel
                 + File.separator + "styles"  + File.separator + "stylesheet-mobile.css";
+            mobileOptCfg = rootDir + File.separator + resourceDirRel
+                + File.separator + "mobile_optExtra.txt";
 
             designSet.put("rootDir", rootDir);               
             designSet.put("pagesCfgTxt", pagesCfgTxt);
@@ -270,6 +287,7 @@ public class WebEditorController {
             designSet.put("websiteURLCfg", websiteURLCfg);
             designSet.put("stylesheet", stylesheet);
             designSet.put("mobileStylesheet", mobileStylesheet); 
+            designSet.put("mobileOptCfg", mobileOptCfg); 
             //Need to reset designSet copy
             //HashMap<String, String> designSetCopy = new HashMap<String, String>(designSet);
             DesignInfoSet designInfoSet = new DesignInfoSet(designSet);
@@ -665,6 +683,7 @@ public class WebEditorController {
         webEditor.menuItemSetEnabled("styleItem", enable);
         webEditor.menuItemSetEnabled("mobileFrameworkItem", enable);
         webEditor.menuItemSetEnabled("mobileStyleItem", enable);
+        webEditor.menuItemSetEnabled("mobileOptItem", enable);
         webEditor.menuItemSetEnabled("pageItem", enable);
         webEditor.menuItemSetEnabled("infoItem", enable);
     }

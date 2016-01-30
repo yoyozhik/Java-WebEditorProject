@@ -213,6 +213,13 @@ public abstract class WebEditorGUIGeneric {
         }        
         ((JMenuItem) getObj(id, GUIObjTypeEnum.MENUITEM)).addActionListener(listener);
     }
+    //RemoveAllActionListeners
+    public void menuItemRemoveAllActionListeners(String id) {
+        JMenuItem m = (JMenuItem) getObj(id, GUIObjTypeEnum.MENUITEM);
+        for( ActionListener al : m.getActionListeners() ) {
+            m.removeActionListener(al);
+        }
+    }
     //Set enabled
     public void menuItemSetEnabled(String id, boolean enabled) {
         ((JMenuItem) getObj(id, GUIObjTypeEnum.MENUITEM)).setEnabled(enabled);

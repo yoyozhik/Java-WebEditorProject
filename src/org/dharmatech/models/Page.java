@@ -232,6 +232,21 @@ public class Page {
         compiledText = handleMarkers(compiledText, true);
 
         //Additional modifications required
+        compiledText = mobileOpt(compiledText);
+        
+        //Handle markers just in case additional modifications introduced markers again
+        compiledText = handleMarkers(compiledText, true);
+        
+        compiledText = UnicodeConvert.toUnicodes(compiledText);
+        //FileUtilities.write(getMobileFullFilePath(), compiledText, "UTF-8");
+        FileUtilities.write(getMobileFullFilePath(), compiledText);
+    }
+    private String mobileOpt(String text) {
+        //Additional modifications required for mobile php pages
+        String compiledText = text;
+        
+        //Mandatory
+        
         //Php header for navigation
         compiledText = "<?php\n"
             + "if (isset($_POST['nav'])) {\n" 
@@ -239,12 +254,23 @@ public class Page {
             + "}\n" 
             + "?>\n"
             + compiledText;
+            
+        //Pages are now .php instead of .html 
+        //Need to implement a fix by collecting all compiled pages, and only change the ones compiled
+        //Simple fix compared to "compiledText = compiledText.replace(".html", ".php");"
+        String allPageNames = getDesignSetItem("allPageNames");
+        if (allPageNames == null) {
+            throw new NullPointerException("Null allPageNames");
+        }
+        String[] allPageNameArray = allPageNames.split("\n");
+        for (int i = 0; i < allPageNameArray.length; i++) {
+            if (!allPageNameArray[i].equals("")) {
+                compiledText = compiledText.replace(allPageNameArray[i] + ".html", allPageNameArray[i] + ".php");
+            }
+        }
         
-        //This one is customized: Web URL is too long
-        //Should think of a better and more generic way to handle
-        //compiledText = compiledText.Replace(">https://sites.google.com/site/mbabuddhistfamilyprogram<",
-        //    ">點此前往 Click Here<");
-        //Update: Fix by searching for the link directly; only modify the ones at least 20 chars long
+        //This one is a bit customized: Web URL is too long
+        //Fix by searching for the link directly; only modify the ones at least 20 chars long
         Pattern p = Pattern.compile("(?i)href\\s*=([^<>]+)>\\s*([^<> ]{20}[^<> ]*)\\s*<");
         Matcher m = p.matcher(compiledText);
         while (m.find()) {
@@ -252,7 +278,8 @@ public class Page {
                 + m.group(1).replace("\\","\\\\") + ">\\s*" 
                 + m.group(2).replace("\\","\\\\") + "\\s*<", 
                 "href=" + m.group(1) + ">" 
-                + UnicodeConvert.toUnicodes("&#40670;&#27492;&#21069;&#24448;") + " Click Here<"); 
+                //+ UnicodeConvert.toUnicodes("&#40670;&#27492;&#21069;&#24448;") 
+                + " Click Here<"); 
                 //Chinese characters cannot be handled directly as a String
                 //點此前往 the unicode is &#40670;&#27492;&#21069;&#24448;
             m = p.matcher(compiledText);
@@ -275,33 +302,50 @@ public class Page {
         compiledText = compiledText.replace(imagesResourcesRel, "/" + imagesResourcesRel) ;
         compiledText = compiledText.replace("//" + imagesResourcesRel, "/" + imagesResourcesRel); 
         
+        //Extra Optional
+        
+        //Extra edits defined in mobileOptCfg
+        String mobileOptCfg = getDesignSetItem("mobileOptCfg");
+        if (mobileOptCfg == null) {
+            throw new NullPointerException("Null mobileOptCfg");
+        }
+        String optCfgLine = FileUtilities.read(mobileOptCfg, "UTF-8");
+        if (optCfgLine == null) {
+            return compiledText;
+        }        
+        String[] optCfgs = optCfgLine.split("\n");
+        for (String opt : optCfgs) {
+            opt = opt.replaceAll("//.*", "");
+            String[] pair = FileUtilities.recordSplit(opt);
+            //System.out.println(opt);
+            //System.out.println(pair[0]);
+            //System.out.println(pair.length);
+            if (pair.length >= 2) {
+                String orig = pair[0];
+                String newS = pair[1];
+                if (orig.contains("(?i)")) { //regex replace
+                    compiledText = compiledText.replaceAll(orig.replace("\"", "\\\""), newS);
+                } else {
+                    compiledText = compiledText.replace(orig, newS);
+                }
+                //System.out.println(orig + "\n" + newS + "\n");
+                //compiledText = compiledText.replace(orig, newS);
+            }
+
+        }
+         /*   
         //Calendar agenda view is better
         compiledText = compiledText.replace("calendar/embed?", "calendar/embed?mode=AGENDA&amp;");
         
         //Make a larger font size
         compiledText = compiledText.replace("style=\" border-width:", "style=\" font-size: 48px; border-width:");
-        
-        //Pages are now .php instead of .html 
-        //Need to implement a fix by collecting all compiled pages, and only change the ones compiled
-        //Simple fix compared to "compiledText = compiledText.replace(".html", ".php");"
-        String allPageNames = getDesignSetItem("allPageNames");
-        if (allPageNames == null) {
-            throw new NullPointerException("Null allPageNames");
-        }
-        String[] allPageNameArray = allPageNames.split("\n");
-        for (int i = 0; i < allPageNameArray.length; i++) {
-            if (!allPageNameArray[i].equals("")) {
-                compiledText = compiledText.replace(allPageNameArray[i] + ".html", allPageNameArray[i] + ".php");
-            }
-        }
+               
         
         //Image needs to resize
         compiledText = compiledText.replaceAll("(?i)<img class=\"uploadedImage\" [^>]* src=",
             "<img class=\"uploadedImage\" max-width:100% max-height:100% src=");
-            
-        compiledText = UnicodeConvert.toUnicodes(compiledText);
-        //FileUtilities.write(getMobileFullFilePath(), compiledText, "UTF-8");
-        FileUtilities.write(getMobileFullFilePath(), compiledText);
+        */
+        return compiledText;
     }
     //Handle markers
     private String handleMarkers(String text, boolean isMobile) {

@@ -16,6 +16,8 @@ Sample configurations for your convenience:
 
 6. Website_URL.txt: Defining website URL.
 
+7. mobile_optExtra.txt: extra mobile optimization as needed; see notes in the file for format guidelines
+
 ================================
 === How to Use Sample: =========
 ================================
@@ -31,7 +33,7 @@ You can use this to double check the location.
 <Your design root>/Website/
 You can also open the stylesheet.css and stylesheet-mobile.css, and copy the content to the Style & Mobile Style setup in the app. But the lightbox folder can only be placed manually at the moment.
 
-3. Copy Framework.txt, Framework-mobile.txt, Website_Name.txt, and Website_URL.txt to:
+3. Copy Framework.txt, Framework-mobile.txt, Website_Name.txt, Website_URL.txt, and mobile_optExtra.txt to:
 <Your design root>/Resource/
 You can also open the files and copy the content into the setups in the app.
 

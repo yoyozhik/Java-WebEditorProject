@@ -78,9 +78,11 @@ public class WebModuleGallery extends WebModuleDefault{
                 String[] pars = FileUtilities.recordSplit(ln);  
                 if (pars.length >= 5) {
                     //System.out.println(line);
-                    String sourcePath = getFullUploadedPath(pars[0].replace("\"", ""));
+                    //String sourcePath = getFullUploadedPath(pars[0].replace("\"", ""));
+                    String sourcePath = getFullUploadedPath(pars[0]);
                     String fileName = (new File(sourcePath)).getName();
-                    String fileDescription = pars[1].replace("\"", "");
+                    //String fileDescription = pars[1].replace("\"", "");
+                    String fileDescription = pars[1];
                     this.npr = Integer.parseInt(pars[2]);
                     this.descriptMode = Integer.parseInt(pars[3]);
                     //String galleryID = pars[4].replace("\"", "");
@@ -157,17 +159,21 @@ public class WebModuleGallery extends WebModuleDefault{
         String[] lines = text.split("\n");
         StringBuilder textSB = new StringBuilder("");
         for (String ln : lines) {
-            String[] pars = ln.split(",");  //What if the content itself has ","?
+            //String[] pars = ln.split(",");
+            String[] pars = FileUtilities.recordSplit(ln);
             if (pars.length >= 5) {
-                String filePath = pars[0].replace("\"", "");
+                //String filePath = pars[0].replace("\"", "");
+                String filePath = pars[0];
                 String fileName = (new File(filePath)).getName();
                 String fileParent = (new File(filePath)).getParent();
                 String thumbPath = fileParent + File.separator + "thumb-" + fileName;
                 String mobilePath = fileParent + File.separator + "mobile-" + fileName;
-                String fileDescription = pars[1].replace("\"", "");
+                //String fileDescription = pars[1].replace("\"", "");
+                String fileDescription = pars[1];
                 int npr = Integer.parseInt(pars[2]);
                 int descriptMode = Integer.parseInt(pars[3]);
-                String galleryClass = pars[4].replace("\"", "");
+                //String galleryClass = pars[4].replace("\"", "");
+                String galleryClass = pars[4];
                 int colWidth = Math.round(100 / npr) - 1;
                 
                 filePath = filePath.replace(File.separator, "/");

@@ -1,0 +1,8 @@
+﻿//One pair per line, separated by ","
+//Use quotation marks to make it more clear
+//Use \" to represent the quotation marks in the string
+//Use (?i) at the beginning to indicate a regex replace
+//Use // to add comment at the end of the pair
+"calendar/embed?", "calendar/embed?mode=AGENDA&amp;"         //Make calendar into list view
+"style=\" border-width:", "style=\" font-size: 48px; border-width:"           //Make font size larger in calendar
+"(?i)<img class=\"uploadedImage\" [^>]* src=", "<img class=\"uploadedImage\" max-width:100% max-height:100% src="          //Resize images to fit screen

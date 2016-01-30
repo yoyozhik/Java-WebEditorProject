@@ -53,6 +53,7 @@ public class WebEditor extends WebEditorGUIGeneric{
     private JMenuItem styleItem;
     private JMenuItem mobileFrameworkItem;
     private JMenuItem mobileStyleItem;
+    private JMenuItem mobileOptItem;
     private JMenuItem pageItem;
     private JMenuItem infoItem;
     
@@ -114,6 +115,7 @@ public class WebEditor extends WebEditorGUIGeneric{
         weMenuItemGroup.put("styleItem".toLowerCase(), styleItem);
         weMenuItemGroup.put("mobileFrameworkItem".toLowerCase(), mobileFrameworkItem);
         weMenuItemGroup.put("mobileStyleItem".toLowerCase(), mobileStyleItem);
+        weMenuItemGroup.put("mobileOptItem".toLowerCase(), mobileOptItem);
         weMenuItemGroup.put("pageItem".toLowerCase(), pageItem);
         weMenuItemGroup.put("infoItem".toLowerCase(), infoItem);
         
@@ -292,8 +294,10 @@ public class WebEditor extends WebEditorGUIGeneric{
         JMenu mobileMenu = new JMenu("Mobile Setup");
         JMenuItem mobileFrameworkItem = new JMenuItem("Framework");
         JMenuItem mobileStyleItem = new JMenuItem("Stylesheet");
+        JMenuItem mobileOptItem = new JMenuItem("Extra Optimization");
         mobileMenu.add(mobileFrameworkItem);
         mobileMenu.add(mobileStyleItem);
+        mobileMenu.add(mobileOptItem);
         //mobileFrameworkItem.addActionListener(new MobileFrameworkActionListener());
         //mobileStyleItem.addActionListener(new MobileStylesheetActionListener());
         //Pages
@@ -313,6 +317,7 @@ public class WebEditor extends WebEditorGUIGeneric{
         this.styleItem = styleItem;
         this.mobileFrameworkItem = mobileFrameworkItem;
         this.mobileStyleItem = mobileStyleItem;
+        this.mobileOptItem = mobileOptItem;
         this.pageItem = pageItem;
         this.infoItem = infoItem;
         

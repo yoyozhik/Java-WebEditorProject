@@ -478,20 +478,45 @@ public class FileUtilities {
         return rgbType;
     }
     
+    
     //Advanced split function to take care of comma inside quotation marks
     public static String[] recordSplit(String str) {
-        Pattern p = Pattern.compile("([^\"]*?|\"[^\"]*?\"),");
-        String s = str.trim() + ",";  //Need one more "," at the end
-        Matcher m = p.matcher(s);
-        ArrayList<String> strArrList = new ArrayList<String>();
-        while (m.find()) {
-            //System.out.println(m.start());
-            //System.out.println(m.end());
-            strArrList.add(m.group(1).replace("\"", ""));
+        String[] initSet = str.split(",");
+        String[] result = new String[initSet.length];
+        //Could reuse initSet for result due to k <= i;
+        //But still separating them to keep simplicity and easy-to-read
+        boolean inQuote = false;
+        int k = 0;
+        for (int i = 0; i < initSet.length; i++) {
+            int qCnt = initSet[i].length() 
+                - initSet[i].replace("\"", "").length();
+            int sqCnt = 0;
+            if (qCnt > 0) {
+                sqCnt = (initSet[i].length() 
+                    - initSet[i].replace("\\\"", "").length()) / 2;
+            }
+            //System.out.println(initSet[i] + ": " + qCnt + "; " + sqCnt);
+            boolean oddQuote = ((qCnt - sqCnt) % 2 == 1);
+            if (inQuote) { //When in quote, result[k] must not be null
+                result[k] += initSet[i].trim();
+            } else {
+                result[k] = initSet[i].trim();
+            }
+            inQuote ^= oddQuote;
+            if (!inQuote) {
+                k++;
+            }
         }
-        String[] records = new String[strArrList.size()];
-        for (int i = 0; i < records.length; i++) {
-            records[i] = strArrList.get(i);
+        if (k < initSet.length && result[k] != null) {
+            k++;  //Usually should not happen if it is correctly formatted
+            //Just to handle exceptions
+        }
+        String[] records = new String[k];
+        for (int i = 0; i < k; i++) {
+            records[i] = result[i];
+            records[i] = records[i].replace("\\\"", "<<RECORDSPLITQUOTE>>");
+            records[i] = records[i].replaceAll("\"", "");
+            records[i] = records[i].replaceAll("<<RECORDSPLITQUOTE>>", "\"");
         }
         return records;
     }
@@ -588,7 +613,8 @@ public class FileUtilities {
     }
     
     public static void main(String[] args) {
-        String s = "\"hahaha, this is it\",,umm,okay,\"\",\"well okay\",";
+        String s = "\"hahaha, \\\"this\\\" is it\",,umm,okay,\"\",\"well okay\",";
+        //s = FileUtilities.readLine("C:\\test.txt", "UTF-8");
         String[] r = recordSplit(s);
         for (int i = 0; i < r.length; i++) {
             System.out.println(i + ":" + r[i]);
