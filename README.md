@@ -63,4 +63,5 @@ Actually, with Java implementation, it is by nature cross-platform. And this is 
 Q: Is the deliverable mobile-friendly?
 
 A: Yes. Although the mobile version of the deliverable is not that beautiful yet, it has been verified that the deliverable is considered mobile-friendly by Google Search, and therefore will receive the ranking bonus for mobile-friendly sites.
+
 In addition, you can add more mobile-friendly treatments in the mobile_optExtra.txt (see sample). For example, if you are embedding Google calendar in your website, we recommend using the full view in Web version (more visualized), and using agenda view in Mobile version (capable of listing all details with the limited screen size).
