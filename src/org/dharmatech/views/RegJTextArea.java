@@ -39,31 +39,17 @@ public class RegJTextArea extends JTextArea {
         if (designInfoSet == null) {
             return null;
         }
-        String content = getText();
-        //int location = getCaretPosition();
+        String content = getText();        
         int location = viewToModel(e.getPoint());
-        int maxTry = 6;
-        int tryI = 0;
         String type = "";
         int id = 0;
-        //ContentParser cP = new ContentParser(designInfoSet);
-        while (tryI < maxTry) {
-            int start = location - tryI * 5;
-            int end = location + tryI * 5;
-            if (start < 0) {
-                start = 0;
-            }
-            if (end > content.length()) {
-                end = content.length();
-            }
-            Matcher m = ContentParser.patternTypeIdFind(content.substring(start, end));
-            if (m.find()) {
-                type = m.group(1);
-                id = Integer.parseInt(m.group(2));
-                break;
-            }
-            tryI++;
+        int start = getStartingSection(location, false);
+        Matcher m = ContentParser.patternTypeIdFind(content.substring(start));
+        if (m.find()) {
+            type = m.group(1);
+            id = Integer.parseInt(m.group(2));
         }
+            
         if (!type.equals("")) {
             WebModuleDefault module = null;
             switch (type.toUpperCase()) {
@@ -98,6 +84,68 @@ public class RegJTextArea extends JTextArea {
         }
         return null;
     }
+    
+    //Find the starting location for a valid segment
+    //location: the reference location in the text
+    //matchEnd: 
+    //True: if location is near the end of segment, match to its end
+    //False: if location is near the end of segment, still match to start
+    protected int getStartingSection(int location, boolean matchEnd) {
+        if (designInfoSet == null) {
+            return 0;
+        }
+        String content = getText();
+        int maxTry = 6;
+        int tryI = 0;
+        String type = "";
+        int id = 0;
+        //ContentParser cP = new ContentParser(designInfoSet);
+        Matcher m = null;
+        int start = 0;
+        int end = 0;
+        boolean mFind = false;
+        
+        if (matchEnd) {
+            //If we are at the end of the text
+            end = content.substring(location, content.length())
+                .indexOf("<<<###_");
+            if (end < 0) { //Already at the end
+                int preEnd = content.substring(location, content.length())
+                    .lastIndexOf(">");
+                if (preEnd >= 0) {
+                    return location + preEnd + 1;
+                }
+                return location;
+            }
+        }
+        //Otherwise
+        //If the location is inside a segment, we can find matches 
+        //Between the beginning of the text and the location + 8 
+        //For the next "<<<###_"
+        //But we use 8 + 8 = 16 so that it locates to the next segment
+        //If it is near the end
+        int delta = 8;
+        if (matchEnd) {
+            delta = 8 + 8;
+        }
+        start = content.substring(0, 
+            (location + delta > content.length()) ?
+            content.length() : location + delta )
+            .lastIndexOf("<<<###_");
+        if (start < 0) {  //Did not find any
+            return 0;
+        } else {
+            if (start > location) { //Near end
+                int preEnd = content.substring(location, start + 1)
+                    .lastIndexOf(">");
+                if (preEnd >= 0) {
+                    return location + preEnd + 1;
+                }
+            }
+            return start;
+        }        
+    }
+    
     
     //Enable undo function
     //Code adapted from exampledepot.com code example

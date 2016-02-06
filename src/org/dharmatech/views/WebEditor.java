@@ -240,7 +240,7 @@ public class WebEditor extends WebEditorGUIGeneric{
         westCenter.setLayout(new BorderLayout());
         westCenter.setBorder(new EmptyBorder(10, 0, 10, 0));
         west.add(BorderLayout.CENTER, westCenter);
-        RegJTextArea contentTA = new RegJTextArea();
+        RegJTextArea contentTA = new PageContentJTextArea(); //Extends RegJTextArea
         this.contentTA = contentTA;
         contentTA.setLineWrap(true);
         contentTA.setMargin(new Insets(10,10,10,10));
