@@ -37,6 +37,7 @@ To Do (list to increase):
 5. Make navigation more elegant and support multi-level navigation.
 6. Make the mobile pages more elegant.
 7. Implement advanced listeners to prevent users from corrupting the well-formatted markdowns.
+8. Enable richtext editing so that special formatting & adding hyperlinks would become easier.
 
 ==================== Project Usage Instruction ========================================
 
