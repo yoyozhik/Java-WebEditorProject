@@ -46,8 +46,9 @@ Current Platform: Windows
 Mac/Linux support: Under Testing
 
 Usage Instruction (Windows)
-- Location: src\
-- Compile: javac org\dharmatech\views\*.java org\dharmatech\controllers\*.java org\dharmatech\models\*.java org\dharmatech\utilities\*.java -d {your class dir}
+- Compile Location: src\
+- Compile: javac org\dharmatech\views\*.java org\dharmatech\controllers\*.java org\dharmatech\models\*.java org\dharmatech\utilities\*.java -d {your directory to place the compiiled class files}
+- Execute Location: {your directory to place the compiiled class files}
 - Execute: java org.dharmatech.controllers.WebEditorController
 
 
