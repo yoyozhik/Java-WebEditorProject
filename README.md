@@ -24,8 +24,8 @@ Improvement/Difference:
 
 1. Less restrictive: users have full access to all files compiled, as well as the webpage templates (including headers). Only some HTML skill is needed to make customized changes, including making additional optimizations to mobile version (e.g. make the embedded Google Calendar more mobile-friendly).
 2. With source code, users have full access to module templates as well, although Java programming skill is needed to make changes
-3. No dependency on service providers any more. Unlike Weebly where it does not allow PHP or ASP or database to co-exist (due to no-access to the root folder), you can now keep these components in the same hosting service as you wish.
-4. File hiararchies are very clear and neatly organized. It is much easier to delete an uploaded file from your package compared to Weebly. That makes file deletion efficient if you need to clean up the space due to storage concerns in some hosting service providers.
+3. No dependency on service providers any more. Unlike Weebly where it does not allow PHP or ASP or database to co-exist (due to no access to the root folder), you can now keep these components in the same hosting service as you wish. You can also easily switch hosting services by simply copying the website files over.
+4. File hiararchies are very clear and neatly organized. It is much easier to delete an uploaded file from your package compared to Weebly (where all files/images are placed in one single folder). That makes file deletion efficient if you need to clean up the space due to storage concerns in some hosting service providers.
 5. Webpage content is labeled with markdowns for each module. This makes the page much easier to read if someone wants to do some debugging with his/her new template trials.
 
 To Do (list to increase):
@@ -55,7 +55,7 @@ Usage Instruction (Windows)
 
 Q: Why are you supporting Windows instead of Mac/Linux as a starting point?
 
-A: Considering the major customers - who have little knowledge about coding, they are mainly Windows and Mac users, not Linux users. And nowadays Windows is still the mainstream by looking at the market share, compared to Mac.
+A: Considering the major customers, who have little knowledge about coding, they are mainly Windows and Mac users, not Linux users. And nowadays Windows is still the mainstream by looking at the market share, compared to Mac. So it makes sense to start with a Windows implementation.
 
 We definitely will extend the support over to Mac and Linux, but Windows is a good starting point to make sure the majority can be benefited asap.
 
