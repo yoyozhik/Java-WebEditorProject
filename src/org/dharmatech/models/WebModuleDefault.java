@@ -36,7 +36,7 @@ import java.util.HashMap;
 import java.util.regex.*;
 import java.io.*;
 
-public class WebModuleDefault {
+public abstract class WebModuleDefault {
     protected WebModuleEnum typeEnum = WebModuleEnum.CODE;
     private DesignInfoSet designInfoSet;
     private String pageName;
@@ -186,7 +186,7 @@ public class WebModuleDefault {
     }
     
     public static void main(String[] args) {
-        WebModuleDefault module = new WebModuleDefault(new DesignInfoSet(new HashMap<String, String>()),
+        /*WebModuleDefault module = new WebModuleDefault(new DesignInfoSet(new HashMap<String, String>()),
             "index", 2);
         System.out.println(module.getID());
         System.out.println(module.getPageName());
@@ -202,6 +202,6 @@ public class WebModuleDefault {
         System.out.println(module.getResourceData());
         System.out.println(module.genRecord("Test Text for module"));
         System.out.println(module.getMarkedContent());
-        module.startEditor();
+        module.startEditor();*/
     }
 }

@@ -18,7 +18,7 @@ import java.util.regex.*;
 import java.io.*;
 
 
-public class WebModule {
+public abstract class WebModule {
     
     private static WebModuleEnum getEnumFromString(String type) {
         //Convert string type into enum type
