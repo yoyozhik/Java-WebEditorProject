@@ -552,7 +552,8 @@ public class Page {
         int id = ContentParser.patternIdFind(compiledText, typeEnum.getValue());
         while (id >= 1) {
             WebModuleDefault module = null;
-            switch (typeEnum) {
+            module = WebModule.createWebModule(new DesignInfoSet(designInfoSet), pageName, id, typeEnum);
+            /*switch (typeEnum) {
                 case TITLE: 
                     module = new WebModuleTitle(new DesignInfoSet(designInfoSet), pageName, id);
                     break;
@@ -576,8 +577,8 @@ public class Page {
                     break;
                 default:
                     throw new IllegalArgumentException("Type " 
-                        + typeEnum.getValue() + " is not legal");    
-            }
+                        + typeEnum.getValue() + " is not legal"); 
+            }*/  
             compiledText = compiledText.replaceAll("(?i)" + module.getTargetWithMarker(), module.getMarkedContent());
             id = ContentParser.patternIdFind(compiledText, typeEnum.getValue());
         }        

@@ -141,7 +141,9 @@ public class GalleryUploaderController {
         
         File f = new File(cfgPath);
         if (f.exists() && f.isFile()) {
-            data = module.getData();
+            if (module.getDataRows() > 0) {
+                data = module.getData();
+            }
             npr = module.getNpr();
             descriptMode = module.getDescriptMode();
             if (npr < 1) {
@@ -171,6 +173,7 @@ public class GalleryUploaderController {
                 }
                 //origFileNames.put(data[i][1].trim().toLowerCase(), new Integer(i));
             }
+
         }
         //Better to select something! (it has at least 1 empty row as guaranteed when initializing)
         //Not really needed anymore because the non-selection is now checked by actions
@@ -187,6 +190,8 @@ public class GalleryUploaderController {
             Object[][] data = module.getData();
             RegTableModel model = new RegTableModel(data, colNames);
             galleryUploader.tableSetModel("imagesTb", model);
+            //If all rows are removed, insert an empty row
+            addEmptyRow();
             //(galleryUploader.tableGetColumn("imagesTb", colNames[0])).setPreferredWidth(
             //    Math.round(galleryUploader.tableGetPreferredSize("imagesTb").width * 0.05f));
             //table.getColumn(colNames[0]).setMaxWidth(20);
@@ -348,6 +353,7 @@ public class GalleryUploaderController {
         }
         tbModel.removeRow(i);
         galleryUploader.labelSetText("statusLb", "Status: Removed row " + i + ".");
+        addEmptyRow();
     }
     //Swap a row: moving is essentially swapping
     private boolean swapRow(int i, int j) {
@@ -365,6 +371,15 @@ public class GalleryUploaderController {
         galleryUploader.labelSetText("statusLb", 
             "Status: Swapped rows " + i + " and " + j + ".");
         return true;
+    }
+    
+    private void addEmptyRow() {
+        RegTableModel tbModel = (RegTableModel) galleryUploader.tableGetModel("imagesTb");
+        //Handle edge case: what if all rows are removed: keep one empty row
+        if (tbModel.getRowCount() == 0) {
+            Object[] emptyRow = {"", "", ""};
+            tbModel.insertRow(0, emptyRow);
+        }
     }
     //private class EditDocumentListener implements DocumentListener {
     //    @Override
@@ -422,7 +437,7 @@ public class GalleryUploaderController {
             "UTF-8");
         galleryUploader.labelSetText("statusLb", 
             "Status: uploading/saving done." + " Total " + iR + " items.");
-        //File names may have changed: need to reload
+       //File names may have changed: need to reload
         reload();
     }
     //Check name collision

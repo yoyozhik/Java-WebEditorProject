@@ -224,7 +224,7 @@ public class PagesCfgController {
                 + "; i must be within 0 and " 
                 + tbModel.getRowCount() + "-1");
         }
-        tbModel.removeRow(i);
+        tbModel.removeRow(i);        
     }
     //Swap a row: moving is essentially a swapping
     private boolean swapRow(int i, int j) {

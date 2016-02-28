@@ -68,6 +68,13 @@ public class FileEditorController {
             throw new NullPointerException("Null pageName");
         }
         this.typeEnum = typeEnum;
+        checkTypeEnum(this.typeEnum);
+        this.designInfoSet = new DesignInfoSet(designInfoSet);
+        this.pageName = pageName;
+        this.id = id;
+    }
+    
+    private void checkTypeEnum(WebModuleEnum typeEnum) {
         switch (typeEnum) {
             case TITLE:
             case PARAGRAPH:
@@ -77,11 +84,7 @@ public class FileEditorController {
                 throw new IllegalArgumentException("Type not Title/Paragraph/Code: "
                     + typeEnum.getValue());
         }
-        this.designInfoSet = new DesignInfoSet(designInfoSet);
-        this.pageName = pageName;
-        this.id = id;
     }
-    
     //Start file editor
     public void start() {
         if (fileEditor == null) {
@@ -160,7 +163,9 @@ public class FileEditorController {
                 fileEditor.textAreaGetText("contentTA"), "UTF-8");
         } else {
             WebModuleDefault module = null;
-            switch (typeEnum) {
+            module = WebModule.createWebModule(new DesignInfoSet(designInfoSet), 
+                pageName, id, typeEnum);
+            /*switch (typeEnum) {
                 case TITLE:
                     module = new WebModuleTitle(new DesignInfoSet(designInfoSet), 
                         pageName, id);
@@ -177,6 +182,7 @@ public class FileEditorController {
                     throw new IllegalArgumentException("Type not Title/Paragraph/Code: "
                         + typeEnum.getValue());
             }
+            */
             FileUtilities.write(filePath, 
                 module.genRecord(fileEditor.textAreaGetText("contentTA")),
                 "UTF-8");

@@ -106,6 +106,12 @@ public class WebModuleGallery extends WebModuleDefault{
         }
         return data;
     }
+    public int getDataRows() {
+        if (data == null) {
+            genCfgInfo();
+        }
+        return data.length;
+    }
     public int getNpr() {
         if (npr == 0) {
             genCfgInfo();

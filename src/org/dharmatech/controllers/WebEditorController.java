@@ -16,6 +16,7 @@ class WebEditorController {
 Windows Example
 Compile: javac org\\dharmatech\\views\\*.java org\\dharmatech\\controllers\\*.java org\\dharmatech\\models\\*.java org\\dharmatech\\utilities\\*.java -d ..\\class
 Execute: java org.dharmatech.controllers.WebEditorController
+Javadoc: javadoc org.dharmatech.controllers org.dharmatech.views org.dharmatech.models org.dharmatech.utilities -d ..\api
 */
 
 package org.dharmatech.controllers;
@@ -465,7 +466,8 @@ public class WebEditorController {
             String type = m.group(1).toUpperCase();
             int id = Integer.parseInt(m.group(2));
             String pageName = pages.get(currentPage).getPageName();
-            switch(type) {
+            module = WebModule.createWebModule(designInfoSet, pageName, id, type);
+            /*switch(type) {
                 case "TITLE": 
                     module = new WebModuleTitle(designInfoSet, pageName, id);
                     break;
@@ -488,7 +490,7 @@ public class WebEditorController {
                     module = new WebModuleDivider(designInfoSet, pageName, id);
                     break;
                 default:                    
-            }
+            }*/
         }
         return module;
     }

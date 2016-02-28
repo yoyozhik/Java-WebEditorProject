@@ -67,6 +67,12 @@ public class FileUploaderController {
         this.uploadDir = uploadDir;
         this.pageName = pageName;
         this.typeEnum = typeEnum;
+        checkTypeEnum(this.typeEnum);   
+        this.id = id;
+        this.fileOpen = new JFileChooser();
+    }
+    
+    private void checkTypeEnum(WebModuleEnum typeEnum) {
         switch (typeEnum) {
             case FILE: 
                 this.fileUploader = new FileUploader(); 
@@ -77,9 +83,7 @@ public class FileUploaderController {
             default: 
                 throw new IllegalArgumentException("Illegal type in FileUploaderController: "
                     + typeEnum.getValue());
-        }        
-        this.id = id;
-        this.fileOpen = new JFileChooser();
+        }     
     }
     
     //Start file uploader
