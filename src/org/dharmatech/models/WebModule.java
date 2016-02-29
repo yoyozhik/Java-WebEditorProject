@@ -5,7 +5,10 @@
 /*API
 class WebModule {
     //public WebModule() {}
-    public static WebModuleDefault createWebModule(DesignInfoSet designInfoSet, String pageName, int id, WebModuleEnum type) {}
+    public static WebModuleDefault createWebModule(DesignInfoSet designInfoSet,
+        String pageName, int id, WebModuleEnum typeEnum) {}
+    public static WebModuleDefault createWebModule(DesignInfoSet designInfoSet,
+        String pageName, int id, String type) {}
 }
 */
 
@@ -19,30 +22,6 @@ import java.io.*;
 
 
 public abstract class WebModule {
-    
-    private static WebModuleEnum getEnumFromString(String type) {
-        //Convert string type into enum type
-        type = type.toUpperCase();
-        switch(type) {
-            case "TITLE": 
-                return WebModuleEnum.TITLE;
-            case "PARAGRAPH": 
-                return WebModuleEnum.PARAGRAPH;
-            case "CODE": 
-                return WebModuleEnum.CODE;
-            case "FILE": 
-                return WebModuleEnum.FILE;
-            case "IMAGE": 
-                return WebModuleEnum.IMAGE;
-            case "GALLERY": 
-                return WebModuleEnum.GALLERY;
-            case "DIVIDER": 
-                return WebModuleEnum.DIVIDER;
-            default:
-                throw new IllegalArgumentException("Illeagal type: " + type);
-        }
-    }
-    
     public static WebModuleDefault createWebModule(DesignInfoSet designInfoSet, 
         String pageName, int id, WebModuleEnum typeEnum) {
         WebModuleDefault module = null;
@@ -76,6 +55,7 @@ public abstract class WebModule {
     
     public static WebModuleDefault createWebModule(DesignInfoSet designInfoSet, 
         String pageName, int id, String type) {
-        return createWebModule(designInfoSet, pageName, id, getEnumFromString(type));
+        return createWebModule(designInfoSet, pageName, id, 
+            WebModuleEnum.getWebModuleEnumFromString(type));
     }
 }

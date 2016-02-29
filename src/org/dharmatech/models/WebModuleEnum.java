@@ -6,6 +6,8 @@
 public enum WebModuleEnum {
     WebModuleEnum(String val) {}
     public String getValue() {}
+    public static WebModuleEnum 
+        getWebModuleEnumFromString(String type) {}
 }
 */
 package org.dharmatech.models;
@@ -26,5 +28,28 @@ public enum WebModuleEnum {
     //Get the String value of the enum
     public String getValue() {
         return (val);
+    }
+    
+    //Convert string type into enum type
+    public static WebModuleEnum getWebModuleEnumFromString(String type) {
+        type = type.toUpperCase();
+        switch(type) {
+            case "TITLE": 
+                return WebModuleEnum.TITLE;
+            case "PARAGRAPH": 
+                return WebModuleEnum.PARAGRAPH;
+            case "CODE": 
+                return WebModuleEnum.CODE;
+            case "FILE": 
+                return WebModuleEnum.FILE;
+            case "IMAGE": 
+                return WebModuleEnum.IMAGE;
+            case "GALLERY": 
+                return WebModuleEnum.GALLERY;
+            case "DIVIDER": 
+                return WebModuleEnum.DIVIDER;
+            default:
+                throw new IllegalArgumentException("Illeagal type: " + type);
+        }
     }
 }
