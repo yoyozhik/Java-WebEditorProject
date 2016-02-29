@@ -5,10 +5,10 @@ Java Project: WebEditor featuring convenient maintenance and clean file hierarch
 ==================== Project Brief ========================================
 
 Code structure: Model-View-Controller
-- models: model classes for data 
-- views: GUI classes
-- controllers: controllers for GUI and model communication
-- utilities: common utilities, including file and unicode utilities
+- org.dharmatech.models: model classes for data 
+- org.dharmatech.views: GUI classes
+- org.dharmatech.controllers: controllers for GUI and model communication
+- org.dharmatech.utilities: common utilities, including file and unicode utilities
 
 Deliverable:
 
