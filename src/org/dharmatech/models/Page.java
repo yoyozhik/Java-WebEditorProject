@@ -265,7 +265,8 @@ public class Page {
         String[] allPageNameArray = allPageNames.split("\n");
         for (int i = 0; i < allPageNameArray.length; i++) {
             if (!allPageNameArray[i].equals("")) {
-                compiledText = compiledText.replace(allPageNameArray[i] + ".html", allPageNameArray[i] + ".php");
+                compiledText = compiledText.replace("<MOBILE>/" + allPageNameArray[i] + ".html", "<MOBILE>/" + allPageNameArray[i] + ".php");
+                compiledText = compiledText.replace("mobile/" + allPageNameArray[i] + ".html", "mobile/" + allPageNameArray[i] + ".php");
             }
         }
         
